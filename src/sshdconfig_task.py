@@ -24,12 +24,15 @@ from .app import celery
 
 # Task name used to register and route the task to the correct queue.
 TASK_NAME = "openrelik-worker-config-analyzer.tasks.sshd_config_analyser"
+SHORT_TASKNAME = "sshd_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
     "display_name": "SSHD Configuration Analyzer",
     "description": "Analyzes a SSHD Daemon configuration file (SshdConfigFile) for weak settings.",
 }
+
+EXPECTED_ARTIFACT = "SshdConfigFile"
 
 
 @celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
@@ -59,13 +62,13 @@ def command(
     for input_file in input_files:
         if (
             input_file.get("data_type").lower()
-            == "openrelik.worker.artifact.sshdconfigfile"
+            == f"openrelik.worker.artifact.{EXPECTED_ARTIFACT}".lower()
         ):
             output_file = create_output_file(
                 output_path,
-                filename=f"{input_file.get('filename')}-sshdconfiganalyzer-report",
+                filename=f"{input_file.get('filename')}-{SHORT_TASKNAME}-report",
                 file_extension="md",
-                data_type="openrelik.task.sshdconfiganalyzer.report",
+                data_type=f"openrelik.task.{SHORT_TASKNAME}.report",
             )
 
             # Read the input file
@@ -80,7 +83,7 @@ def command(
             output_files.append(output_file.to_dict())
 
     if not output_files:
-        raise RuntimeError("No SSHD config file found (artifact: SshdConfigFile)")
+        raise RuntimeError(f"No SSHD config file found (artifact: {EXPECTED_ARTIFACT})")
 
     return task_result(
         output_files=output_files,

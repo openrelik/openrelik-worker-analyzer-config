@@ -25,12 +25,15 @@ from .app import celery
 
 # Task name used to register and route the task to the correct queue.
 TASK_NAME = "openrelik-worker-config-analyzer.tasks.jenkins_config_analyser"
+SHORT_TASK_NAME = "jenkins_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
     "display_name": "Jenkins Configuration Analyzer",
     "description": "Analyzes a Jenkins configuration file (JenkinsConfigFile) for weak settings.",
 }
+
+EXPECTED_FILENAME = "config.xml"
 
 
 @celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
@@ -58,12 +61,15 @@ def command(
     output_files = []
 
     for input_file in input_files:
-        if input_file.get("data_type").lower() == "openrelik.worker.file.config.xml":
+        if (
+            input_file.get("data_type").lower()
+            == f"openrelik.worker.file.{EXPECTED_FILENAME}".lower()
+        ):
             output_file = create_output_file(
                 output_path,
-                filename=f"{input_file.get('filename')}-jenkinsconfiganalyzer-report",
+                filename=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report",
                 file_extension="md",
-                data_type="openrelik.task.jenkinsconfiganalyzer.report",
+                data_type=f"openrelik.task.{SHORT_TASK_NAME}.report",
             )
 
             # Read the input file
@@ -79,7 +85,7 @@ def command(
 
     if not output_files:
         raise RuntimeError(
-            "No Jenkins Notebook config file found (artifact: JupyterConfigFile)"
+            f"No Jenkins Notebook config file found (filename: {EXPECTED_FILENAME})"
         )
 
     return task_result(
