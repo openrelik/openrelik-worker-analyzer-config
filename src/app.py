@@ -22,5 +22,9 @@ from openrelik_worker_common.setup import setup_debugging
 setup_debugging()
 
 REDIS_URL = os.getenv("REDIS_URL")
-celery = Celery(broker=REDIS_URL, backend=REDIS_URL, include=["src.tasks"])
+celery = Celery(
+    broker=REDIS_URL,
+    backend=REDIS_URL,
+    include=["src.sshdconfig_task", "src.jupyterconfig_task"],
+)
 redis_client = redis.Redis.from_url(REDIS_URL)

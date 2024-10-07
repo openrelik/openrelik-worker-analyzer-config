@@ -12,34 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
-
 from openrelik_worker_common.utils import (
     create_output_file,
     get_input_files,
     task_result,
 )
 
+from .analyzers.sshdconfig_analyzer import analyse_config
+
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "your-worker-package-name.tasks.your_task_name"
+TASK_NAME = "openrelik-worker-config-analyzer.tasks.sshd_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "<REPLACE_WITH_NAME_OF_THE_WORKER>",
-    "description": "<REPLACE_WITH_DESCRIPTION_OF_THE_WORKER>",
-    # Configuration that will be rendered as a web for in the UI, and any data entered
-    # by the user will be available to the task function when executing (task_config).
-    "task_config": [
-        {
-            "name": "<REPLACE_WITH_NAME>",
-            "label": "<REPLACE_WITH_LABEL>",
-            "description": "<REPLACE_WITH_DESCRIPTION>",
-            "type": "<REPLACE_WITH_TYPE>",  # Types supported: text, textarea, checkbox
-            "required": False,
-        },
-    ],
+    "display_name": "SSHD Configuration Analyzer",
+    "description": "Analyzes a SSHD Daemon configuration file (SshdConfigFile) for weak settings.",
 }
 
 
@@ -52,7 +41,7 @@ def command(
     workflow_id: str = None,
     task_config: dict = None,
 ) -> str:
-    """Run <REPLACE_WITH_COMMAND> on input files.
+    """Run the SSHD Configuration Analyzer on input files.
 
     Args:
         pipe_result: Base64-encoded result from the previous Celery task, if any.
@@ -66,30 +55,36 @@ def command(
     """
     input_files = get_input_files(pipe_result, input_files or [])
     output_files = []
-    base_command = ["<REPLACE_WITH_COMMAND>"]
-    base_command_string = " ".join(base_command)
 
     for input_file in input_files:
-        output_file = create_output_file(
-            output_path,
-            filename=input_file.get("filename"),
-            file_extension="<REPLACE_WITH_FILE_EXTENSION>",
-            data_type="<[OPTIONAL]_REPLACE_WITH_DATA_TYPE>",
-        )
-        command = base_command + [input_file.get("path")]
+        if (
+            input_file.get("data_type").lower()
+            == "openrelik.worker.artifact.sshdconfigfile"
+        ):
+            output_file = create_output_file(
+                output_path,
+                filename=f"{input_file.get('filename')}-sshdconfiganalyzer-report",
+                file_extension="md",
+                data_type="openrelik.task.sshdconfiganalyzer.report",
+            )
 
-        # Run the command
-        with open(output_file.path, "w") as fh:
-            subprocess.Popen(command, stdout=fh)
+            # Read the input file
+            with open(input_file.get("path"), "r", encoding="utf-8") as config_file:
+                config = config_file.read()
 
-        output_files.append(output_file.to_dict())
+            (report, priority, summary) = analyse_config(config)
+
+            with open(output_file.path, "w", encoding="utf-8") as file1:
+                file1.write(report)
+
+            output_files.append(output_file.to_dict())
 
     if not output_files:
-        raise RuntimeError("<REPLACE_WITH_ERROR_STRING>")
+        raise RuntimeError("No SSHD config file found (artifact: SshdConfigFile)")
 
     return task_result(
         output_files=output_files,
         workflow_id=workflow_id,
-        command=base_command_string,
-        meta={},
+        command=None,
+        meta={"priority": str(priority), "report_summary": str(summary)},
     )
