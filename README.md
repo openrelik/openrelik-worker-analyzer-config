@@ -1,8 +1,9 @@
 # Openrelik worker for analyzing configuration files.
 
 ## Supported Configuration Analyzers
-* SSH Daemon - SshConfigFile
-* Jupyter Notebook - JupyterConfigFile
+* SSH Daemon - artifact:SshConfigFile
+* Jupyter Notebook - artifact:JupyterConfigFile
+* Jenkins - filename:config.xml
 
 ## Installation
 Add the below configuration to the OpenRelik `docker-compose.yml` file.
