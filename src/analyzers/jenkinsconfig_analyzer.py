@@ -1,8 +1,20 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import re
 
-# TODO(hacktobeer) - Fix when added to common lib
-# from openrelik_worker_common.reporting import Priority
 from .openrelik_worker_common import reporting as fmt
+from .utils import bruteforce_password_hashes
 
 
 def analyse_config(config):
@@ -96,11 +108,10 @@ def analyze_jenkins(version, credentials, timeout=300):
     priority = fmt.Priority.LOW
     credentials_registry = {hash: username for username, hash in credentials}
 
-    # '3200' is "bcrypt $2*$, Blowfish (Unix)"
-    # weak_passwords = bruteforce_password_hashes(
-    #     credentials_registry.keys(), tmp_dir=None, timeout=timeout, extra_args="-m 3200"
-    # )
-    weak_passwords = []
+    # "3200" is "bcrypt $2*$, Blowfish (Unix)"
+    weak_passwords = bruteforce_password_hashes(
+        credentials_registry.keys(), tmp_dir=None, timeout=timeout, extra_args="-m 3200"
+    )
 
     if not version:
         version = "Unknown"
@@ -119,8 +130,8 @@ def analyze_jenkins(version, credentials, timeout=300):
             report.append(fmt.bullet(line, level=2))
     elif credentials_registry or version != "Unknown":
         summary = (
-            f"Jenkins version {version} found with {len(credentials_registry)} credentials, but no issues "
-            "detected"
+            f"Jenkins version {version} found with {len(credentials_registry)} "
+            "credentials, but no issues detected"
         )
         report.insert(0, fmt.heading4(summary))
         priority = fmt.Priority.MEDIUM
