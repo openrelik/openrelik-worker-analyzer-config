@@ -74,11 +74,9 @@ def bruteforce_password_hashes(password_hashes, tmp_dir, timeout=300, extra_args
         cmd = cmd + [password_hashes_file_path, password_list_file_path]
         cmd = cmd + ["-r", password_rules_file_path]
 
-    with open(os.devnull, "w", encoding="utf-8"):
+    with open(os.devnull, "w", encoding="utf-8") as devnull:
         try:
-            # TODO(hacktobeer) Remove when hashcat binary is fixed.
-            # child = subprocess.Popen(cmd, stdout=devnull, stderr=devnull)
-            child = subprocess.Popen(cmd)
+            child = subprocess.Popen(cmd, stdout=devnull, stderr=devnull)
             timer = threading.Timer(timeout, child.terminate)
             timer.start()
             child.communicate()

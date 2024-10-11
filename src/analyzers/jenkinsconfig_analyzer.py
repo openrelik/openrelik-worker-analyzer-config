@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 
-from .openrelik_worker_common import reporting as fmt
+from openrelik_worker_common import reporting as fmt
 from .utils import bruteforce_password_hashes
 
 
