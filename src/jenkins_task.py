@@ -19,21 +19,21 @@ from openrelik_worker_common.utils import (
     task_result,
 )
 
-from .analyzers.jupyterconfig_analyzer import analyse_config
+from .analyzers import analyse_config
 
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-config-analyzer.tasks.jupyter_config_analyser"
-SHORT_TASK_NAME = "jupyter_config_analyser"
+TASK_NAME = "openrelik-worker-config-analyzer.tasks.jenkins_config_analyser"
+SHORT_TASK_NAME = "jenkins_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "Jupyter Notebook Configuration Analyzer",
-    "description": "Analyzes a Jupyter Notebook configuration file (JupyterConfigFile) for weak settings.",
+    "display_name": "Jenkins Configuration Analyzer",
+    "description": "Analyzes a Jenkins configuration file (JenkinsConfigFile) for weak settings.",
 }
 
-EXPECTED_ARTIFACT = "JupyterConfigFile"
+EXPECTED_FILENAME = "config.xml"
 
 
 @celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
@@ -45,7 +45,7 @@ def command(
     workflow_id: str = None,
     task_config: dict = None,
 ) -> str:
-    """Run the Jupyter Configuration Analyzer on input files.
+    """Run the Jenkins Configuration Analyzer on input files.
 
     Args:
         pipe_result: Base64-encoded result from the previous Celery task, if any.
@@ -63,7 +63,7 @@ def command(
     for input_file in input_files:
         if (
             input_file.get("data_type").lower()
-            == f"openrelik.worker.artifact.{EXPECTED_ARTIFACT}".lower()
+            == f"openrelik.worker.file.{EXPECTED_FILENAME}".lower()
         ):
             output_file = create_output_file(
                 output_path,
@@ -85,7 +85,7 @@ def command(
 
     if not output_files:
         raise RuntimeError(
-            f"No Jupyter Notebook config file found (artifact: {EXPECTED_ARTIFACT})"
+            f"No Jenkins Notebook config file found (filename: {EXPECTED_FILENAME})"
         )
 
     return task_result(

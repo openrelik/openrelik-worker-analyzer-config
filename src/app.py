@@ -25,6 +25,6 @@ REDIS_URL = os.getenv("REDIS_URL")
 celery = Celery(
     broker=REDIS_URL,
     backend=REDIS_URL,
-    include=["src.sshdconfig_task", "src.jupyterconfig_task", "src.jenkinsconfig_task"],
+    include=["src.sshd_task", "src.jupyter_task", "src.jenkins_task"],
 )
 redis_client = redis.Redis.from_url(REDIS_URL)

@@ -12,27 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from openrelik_worker_common.utils import (
     create_output_file,
     get_input_files,
     task_result,
 )
 
-from .analyzers.sshdconfig_analyzer import analyse_config
+from .analyzers import analyse_config
 
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-config-analyzer.tasks.sshd_config_analyser"
-SHORT_TASKNAME = "sshd_config_analyser"
+TASK_NAME = "openrelik-worker-config-analyzer.tasks.jupyter_config_analyser"
+SHORT_TASK_NAME = "jupyter_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "SSHD Configuration Analyzer",
-    "description": "Analyzes a SSHD Daemon configuration file (SshdConfigFile) for weak settings.",
+    "display_name": "Jupyter Notebook Configuration Analyzer",
+    "description": "Analyzes a Jupyter Notebook configuration file (JupyterConfigFile) for weak settings.",
 }
 
-EXPECTED_ARTIFACT = "SshdConfigFile"
+EXPECTED_ARTIFACT = "JupyterConfigFile"
 
 
 @celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
@@ -44,7 +45,7 @@ def command(
     workflow_id: str = None,
     task_config: dict = None,
 ) -> str:
-    """Run the SSHD Configuration Analyzer on input files.
+    """Run the Jupyter Configuration Analyzer on input files.
 
     Args:
         pipe_result: Base64-encoded result from the previous Celery task, if any.
@@ -66,9 +67,9 @@ def command(
         ):
             output_file = create_output_file(
                 output_path,
-                filename=f"{input_file.get('filename')}-{SHORT_TASKNAME}-report",
+                filename=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report",
                 file_extension="md",
-                data_type=f"openrelik.task.{SHORT_TASKNAME}.report",
+                data_type=f"openrelik.task.{SHORT_TASK_NAME}.report",
             )
 
             # Read the input file
@@ -83,7 +84,9 @@ def command(
             output_files.append(output_file.to_dict())
 
     if not output_files:
-        raise RuntimeError(f"No SSHD config file found (artifact: {EXPECTED_ARTIFACT})")
+        raise RuntimeError(
+            f"No Jupyter Notebook config file found (artifact: {EXPECTED_ARTIFACT})"
+        )
 
     return task_result(
         output_files=output_files,

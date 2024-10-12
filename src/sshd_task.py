@@ -12,28 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from openrelik_worker_common.utils import (
     create_output_file,
     get_input_files,
     task_result,
 )
 
-from .analyzers.jenkinsconfig_analyzer import analyse_config
+from .analyzers import analyse_config
 
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-config-analyzer.tasks.jenkins_config_analyser"
-SHORT_TASK_NAME = "jenkins_config_analyser"
+TASK_NAME = "openrelik-worker-config-analyzer.tasks.sshd_config_analyser"
+SHORT_TASKNAME = "sshd_config_analyser"
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "Jenkins Configuration Analyzer",
-    "description": "Analyzes a Jenkins configuration file (JenkinsConfigFile) for weak settings.",
+    "display_name": "SSHD Configuration Analyzer",
+    "description": "Analyzes a SSHD Daemon configuration file (SshdConfigFile) for weak settings.",
 }
 
-EXPECTED_FILENAME = "config.xml"
+EXPECTED_ARTIFACT = "SshdConfigFile"
 
 
 @celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
@@ -45,7 +44,7 @@ def command(
     workflow_id: str = None,
     task_config: dict = None,
 ) -> str:
-    """Run the Jenkins Configuration Analyzer on input files.
+    """Run the SSHD Configuration Analyzer on input files.
 
     Args:
         pipe_result: Base64-encoded result from the previous Celery task, if any.
@@ -63,13 +62,13 @@ def command(
     for input_file in input_files:
         if (
             input_file.get("data_type").lower()
-            == f"openrelik.worker.file.{EXPECTED_FILENAME}".lower()
+            == f"openrelik.worker.artifact.{EXPECTED_ARTIFACT}".lower()
         ):
             output_file = create_output_file(
                 output_path,
-                filename=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report",
+                filename=f"{input_file.get('filename')}-{SHORT_TASKNAME}-report",
                 file_extension="md",
-                data_type=f"openrelik.task.{SHORT_TASK_NAME}.report",
+                data_type=f"openrelik.task.{SHORT_TASKNAME}.report",
             )
 
             # Read the input file
@@ -84,9 +83,7 @@ def command(
             output_files.append(output_file.to_dict())
 
     if not output_files:
-        raise RuntimeError(
-            f"No Jenkins Notebook config file found (filename: {EXPECTED_FILENAME})"
-        )
+        raise RuntimeError(f"No SSHD config file found (artifact: {EXPECTED_ARTIFACT})")
 
     return task_result(
         output_files=output_files,
