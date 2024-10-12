@@ -13,7 +13,7 @@
 # limitations under the License.
 import unittest
 
-from src.analyzers.jupyterconfig_analyzer import analyse_config
+from src.analyzers.jupyter_analyzer import analyse_config
 
 
 class Utils(unittest.TestCase):

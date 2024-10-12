@@ -14,7 +14,7 @@
 import unittest
 from unittest.mock import patch
 
-from src.analyzers.jenkinsconfig_analyzer import (
+from src.analyzers.jenkins_analyzer import (
     analyse_config,
     _extract_jenkins_credentials,
     _extract_jenkins_version,

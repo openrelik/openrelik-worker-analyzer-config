@@ -13,7 +13,7 @@
 # limitations under the License.
 import unittest
 
-from src.analyzers.sshdconfig_analyzer import analyse_config
+from src.analyzers.sshd_analyzer import analyse_config
 
 
 class Utils(unittest.TestCase):
