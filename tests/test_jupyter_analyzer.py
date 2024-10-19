@@ -14,6 +14,7 @@
 import unittest
 
 from src.analyzers.jupyter_analyzer import analyse_config
+from openrelik_worker_common.reporting import Priority
 
 
 class Utils(unittest.TestCase):
@@ -29,7 +30,10 @@ class Utils(unittest.TestCase):
         )
 
         config_report_expected = (
-            """#### **Insecure Jupyter Notebook configuration found. Total misconfigs: 4**\n"""
+            """# Jupyter Config Analyzer\n"""
+            """\n\n"""
+            """Insecure Jupyter Notebook configuration found. Total misconfigs: 4\n"""
+            """\n"""
             """* XSRF protection is disabled.\n"""
             """* Juypter Notebook allowed to run as root.\n"""
             """* Password is not required to access this Jupyter Notebook.\n"""
@@ -39,7 +43,7 @@ class Utils(unittest.TestCase):
             "Insecure Jupyter Notebook configuration found. Total misconfigs: 4"
         )
         result = analyse_config(config)
-        expected = (config_report_expected, 20, config_summary_expected)
+        expected = (config_report_expected, Priority.HIGH, config_summary_expected)
         self.assertTupleEqual(result, expected)
 
 

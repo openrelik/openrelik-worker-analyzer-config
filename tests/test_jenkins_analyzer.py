@@ -21,6 +21,9 @@ from src.analyzers.jenkins_analyzer import (
 )
 
 
+from openrelik_worker_common.reporting import Priority
+
+
 class Utils(unittest.TestCase):
     """Test the analyzer functions."""
 
@@ -46,7 +49,7 @@ class Utils(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    @patch("src.analyzers.jenkinsconfig_analyzer.bruteforce_password_hashes")
+    @patch("src.analyzers.jenkins_analyzer.bruteforce_password_hashes")
     def test_analyze_config(self, bruteforce):
         """Test Jenkins config analysis."""
         bruteforce.return_value = [
@@ -58,14 +61,22 @@ class Utils(unittest.TestCase):
             """<passwordHash>#jbcrypt:$2a$10$razd3L1aXndFfBNHO95aj.IVrFydsxkcQCcLmujmFQzll3hcUrY7S</passwordHash>"""
         )
         jenkins_config_report_expected = (
-            """#### **Jenkins analysis found potential issues**\n"""
+            """# Jenkins Config Analyzer\n"""
+            """\n"""
             """* Jenkins version: 1.29.2\n"""
-            """* **1 weak password(s) found:**\n"""
+            """\n"""
+            """Jenkins analysis found potential issues\n"""
+            """\n"""
+            """* 1 weak password(s) found:\n"""
             """    * User "Ramses de Beer" with password \"test\""""
         )
         jenkins_config_summary_expected = "Jenkins analysis found potential issues"
         result = analyse_config(config)
-        expected = (jenkins_config_report_expected, 10, jenkins_config_summary_expected)
+        expected = (
+            jenkins_config_report_expected,
+            Priority.CRITICAL,
+            jenkins_config_summary_expected,
+        )
         self.assertTupleEqual(result, expected)
 
 

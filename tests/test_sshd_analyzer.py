@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
+from openrelik_worker_common.reporting import Priority
 
 from src.analyzers.sshd_analyzer import analyse_config
 
@@ -22,8 +23,13 @@ class Utils(unittest.TestCase):
     def test_sshdconfig_empty(self):
         """Test empty sshd config."""
         result = analyse_config("")
-        report = "No issues found in SSH configuration"
-        expected = (report, 80, report)
+        report = (
+            """# SSHD Config Analyzer\n"""
+            """\n\n"""
+            """No issues found in SSH configuration\n\n"""
+        )
+        summary = "No issues found in SSH configuration"
+        expected = (report, Priority.LOW, summary)
         self.assertTupleEqual(result, expected)
 
     def test_sshdconfig_weak(self):
@@ -31,15 +37,22 @@ class Utils(unittest.TestCase):
         sshd_config_weak = """PermitRootLogin yes
         PasswordAuthentication yes
         PermitEmptyPasswords yes"""
-        sshd_config_report_expected = (
-            """#### **Insecure SSH configuration found.**\n"""
+        report_expected = (
+            """# SSHD Config Analyzer\n"""
+            """\n\n"""
+            """Insecure SSHD configuration found. Total misconfigs: 3\n"""
+            """\n"""
             """* Root login enabled.\n"""
             """* Password authentication enabled.\n"""
             """* Empty passwords permitted."""
         )
-        sshd_config_summary_expected = "Insecure SSH configuration found."
+        summary_expected = "Insecure SSHD configuration found. Total misconfigs: 3"
         result = analyse_config(sshd_config_weak)
-        expected = (sshd_config_report_expected, 20, sshd_config_summary_expected)
+        expected = (
+            report_expected,
+            Priority.HIGH,
+            summary_expected,
+        )
         self.assertTupleEqual(result, expected)
 
 
