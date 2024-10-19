@@ -19,7 +19,8 @@ from openrelik_worker_common.utils import (
     task_result,
 )
 
-from .analyzers import analyse_config
+from openrelik_worker_common.reporting import Priority
+from .analyzers.jupyter_analyzer import analyse_config
 
 from .app import celery
 
@@ -60,6 +61,9 @@ def command(
     input_files = get_input_files(pipe_result, input_files or [])
     output_files = []
 
+    summary = ""
+    priority = Priority.LOW
+
     for input_file in input_files:
         if (
             input_file.get("data_type").lower()
@@ -67,8 +71,7 @@ def command(
         ):
             output_file = create_output_file(
                 output_path,
-                filename=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report",
-                file_extension="md",
+                display_name=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report.md",
                 data_type=f"openrelik.task.{SHORT_TASK_NAME}.report",
             )
 

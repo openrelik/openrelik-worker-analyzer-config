@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common import reporting as fmt
+import openrelik_worker_common.reporting as rep
 from .utils import bruteforce_password_hashes
 
 
@@ -103,9 +103,9 @@ def analyze_jenkins(version, credentials, timeout=300):
         summary(str): A summary of the report (used for task status)
       )
     """
-    report = []
-    summary = ""
-    priority = fmt.Priority.LOW
+    report = rep.TaskReport("Jenkins Config Analyzer")
+    report.summary = ""
+    report.priority = rep.Priority.LOW
     credentials_registry = {hash: username for username, hash in credentials}
 
     # "3200" is "bcrypt $2*$, Blowfish (Unix)"
@@ -115,29 +115,29 @@ def analyze_jenkins(version, credentials, timeout=300):
 
     if not version:
         version = "Unknown"
-    report.append(fmt.bullet(f"Jenkins version: {version:s}"))
+    section = report.add_section()
+    section.add_bullet(f"Jenkins version: {version:s}")
 
     if weak_passwords:
-        priority = fmt.Priority.CRITICAL
-        summary = "Jenkins analysis found potential issues"
-        report.insert(0, fmt.heading4(fmt.bold(summary)))
+        report.priority = rep.Priority.CRITICAL
+        report.summary = "Jenkins analysis found potential issues"
+        section.add_paragraph(report.summary)
         line = f"{len(weak_passwords):n} weak password(s) found:"
-        report.append(fmt.bullet(fmt.bold(line)))
+        section.add_bullet(line)
         for password_hash, plaintext in weak_passwords:
             line = 'User "{0:s}" with password "{1:s}"'.format(
                 credentials_registry.get(password_hash), plaintext
             )
-            report.append(fmt.bullet(line, level=2))
+            section.add_bullet(line, level=2)
     elif credentials_registry or version != "Unknown":
-        summary = (
+        report.summary = (
             f"Jenkins version {version} found with {len(credentials_registry)} "
             "credentials, but no issues detected"
         )
-        report.insert(0, fmt.heading4(summary))
-        priority = fmt.Priority.MEDIUM
+        section.add_paragraph(report.summary)
+        report.priority = rep.Priority.MEDIUM
     else:
-        summary = "No Jenkins instance found"
-        report.insert(0, fmt.heading4(summary))
+        report.summary = "No Jenkins instance found"
+        section.add_paragraph(report.summary)
 
-    report = "\n".join(report)
-    return (report, priority, summary)
+    return (report.to_markdown(), report.priority, report.summary)

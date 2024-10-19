@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common import reporting as fmt
+from openrelik_worker_common import reporting as rep
 
 
 def analyse_config(config):
@@ -29,7 +29,10 @@ def analyse_config(config):
         summary(str): A summary of the report (used for task status)
       )
     """
-    findings = []
+    num_misconfigs = 0
+    report = rep.TaskReport("SSHD Config Analyzer")
+    summary_section = report.add_section()
+    section = report.add_section()
     permit_root_login_re = re.compile(
         r"^\s*PermitRootLogin\s*(yes|prohibit-password|without-password)",
         re.IGNORECASE | re.MULTILINE,
@@ -42,19 +45,24 @@ def analyse_config(config):
     )
 
     if re.search(permit_root_login_re, config):
-        findings.append(fmt.bullet("Root login enabled."))
+        section.add_bullet("Root login enabled.")
+        num_misconfigs += 1
 
     if re.search(password_authentication_re, config):
-        findings.append(fmt.bullet("Password authentication enabled."))
+        section.add_bullet(("Password authentication enabled."))
+        num_misconfigs += 1
 
     if re.search(permit_empty_passwords_re, config):
-        findings.append(fmt.bullet("Empty passwords permitted."))
+        section.add_bullet("Empty passwords permitted.")
+        num_misconfigs += 1
 
-    if findings:
-        summary = "Insecure SSH configuration found."
-        findings.insert(0, fmt.heading4(fmt.bold(summary)))
-        report = "\n".join(findings)
-        return (report, fmt.Priority.HIGH, summary)
+    if num_misconfigs > 0:
+        report.summary = (
+            f"Insecure SSHD configuration found. Total misconfigs: {num_misconfigs}"
+        )
+        summary_section.add_paragraph(report.summary)
+        return (report.to_markdown(), rep.Priority.HIGH, report.summary)
 
-    report = "No issues found in SSH configuration"
-    return (report, fmt.Priority.LOW, report)
+    report.summary = "No issues found in SSH configuration"
+    summary_section.add_paragraph(report.summary)
+    return (report.to_markdown(), rep.Priority.LOW, report.summary)
