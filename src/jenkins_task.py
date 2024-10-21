@@ -26,7 +26,7 @@ from .analyzers.jenkins_analyzer import analyse_config
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-config-analyzer.tasks.jenkins_config_analyser"
+TASK_NAME = "openrelik-worker-analyzer-config.tasks.jenkins_config_analyser"
 SHORT_TASK_NAME = "jenkins_config_analyser"
 
 # Task metadata for registration in the core system.
