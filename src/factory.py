@@ -15,7 +15,7 @@
 from typing import Callable
 
 from .app import celery
-from .utils import (
+from openrelik_worker_common.utils import (
     create_output_file,
     create_file_report,
     get_input_files,
