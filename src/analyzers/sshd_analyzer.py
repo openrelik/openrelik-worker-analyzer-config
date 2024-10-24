@@ -79,4 +79,4 @@ def create_task_report(file_reports: list = []):
     Returns:
         report (reporting.TaskReport): The task report.
     """
-    print("CREATE TAAAAASK REPORT")
+    pass

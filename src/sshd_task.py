@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .analyzers.sshd_analyzer import analyze_config, create_task_report
+from .analyzers.sshd_analyzer import analyze_config
 from .factory import task_factory
 
 # Task name used to register and route the task to the correct queue.
@@ -38,5 +38,5 @@ task_factory(
     compatible_inputs=COMPATIBLE_INPUTS,
     task_metadata=TASK_METADATA,
     analysis_function=analyze_config,
-    task_report_function=create_task_report,
+    task_report_function=None,
 )
