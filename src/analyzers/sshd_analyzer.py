@@ -13,26 +13,26 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common import reporting as rep
+from openrelik_worker_common import reporting
 
 
-def analyse_config(config):
-    """Analyses an SSH configuration.
+def analyze_config(file_content: str) -> reporting.TaskReport:
+    """Analyzes an SSHD configuration.
 
     Args:
-      config (str): configuration file content.
+      file_content (str): configuration file content.
 
     Returns:
-      Tuple(
-        report_text(str): The report data
-        report_priority(int): The priority of the report (0 - 100)
-        summary(str): A summary of the report (used for task status)
-      )
+        report (reporting.TaskReport): The analysis report.
     """
     num_misconfigs = 0
-    report = rep.TaskReport("SSHD Config Analyzer")
+    config = file_content
+
+    # Create a report with two sections.
+    report = reporting.TaskReport("SSHD Config Analyzer")
     summary_section = report.add_section()
-    section = report.add_section()
+    details_section = report.add_section()
+
     permit_root_login_re = re.compile(
         r"^\s*PermitRootLogin\s*(yes|prohibit-password|without-password)",
         re.IGNORECASE | re.MULTILINE,
@@ -45,24 +45,38 @@ def analyse_config(config):
     )
 
     if re.search(permit_root_login_re, config):
-        section.add_bullet("Root login enabled.")
+        details_section.add_bullet("Root login enabled.")
         num_misconfigs += 1
 
     if re.search(password_authentication_re, config):
-        section.add_bullet(("Password authentication enabled."))
+        details_section.add_bullet(("Password authentication enabled."))
         num_misconfigs += 1
 
     if re.search(permit_empty_passwords_re, config):
-        section.add_bullet("Empty passwords permitted.")
+        details_section.add_bullet("Empty passwords permitted.")
         num_misconfigs += 1
 
     if num_misconfigs > 0:
         report.summary = (
             f"Insecure SSHD configuration found. Total misconfigs: {num_misconfigs}"
         )
+        report.priority = reporting.Priority.HIGH
         summary_section.add_paragraph(report.summary)
-        return (report.to_markdown(), rep.Priority.HIGH, report.summary)
+        return report
 
     report.summary = "No issues found in SSH configuration"
+    report.priority = reporting.Priority.LOW
     summary_section.add_paragraph(report.summary)
-    return (report.to_markdown(), rep.Priority.LOW, report.summary)
+    return report
+
+
+def create_task_report(file_reports: list = []):
+    """Creates a task report from a list of file reports.
+
+    Args:
+        file_reports (list): A list of file reports.
+
+    Returns:
+        report (reporting.TaskReport): The task report.
+    """
+    print("CREATE TAAAAASK REPORT")

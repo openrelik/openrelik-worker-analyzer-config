@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from openrelik_worker_common.reporting import Priority
+from openrelik_worker_common.reporting import Priority, TaskReport
 
-from src.analyzers.sshd_analyzer import analyse_config
+from src.analyzers.sshd_analyzer import analyze_config
 
 
 class Utils(unittest.TestCase):
@@ -22,15 +22,18 @@ class Utils(unittest.TestCase):
 
     def test_sshdconfig_empty(self):
         """Test empty sshd config."""
-        result = analyse_config("")
+        result = analyze_config("")
         report = (
             """# SSHD Config Analyzer\n"""
             """\n\n"""
             """No issues found in SSH configuration\n\n"""
         )
         summary = "No issues found in SSH configuration"
-        expected = (report, Priority.LOW, summary)
-        self.assertTupleEqual(result, expected)
+
+        self.assertIsInstance(result, TaskReport)
+        self.assertEqual(result.priority, Priority.LOW)
+        self.assertEqual(result.summary, summary)
+        self.assertEqual(result.to_markdown(), report)
 
     def test_sshdconfig_weak(self):
         """Test sshd config with weak settings."""
@@ -47,13 +50,12 @@ class Utils(unittest.TestCase):
             """* Empty passwords permitted."""
         )
         summary_expected = "Insecure SSHD configuration found. Total misconfigs: 3"
-        result = analyse_config(sshd_config_weak)
-        expected = (
-            report_expected,
-            Priority.HIGH,
-            summary_expected,
-        )
-        self.assertTupleEqual(result, expected)
+
+        result = analyze_config(sshd_config_weak)
+        self.assertIsInstance(result, TaskReport)
+        self.assertEqual(result.priority, Priority.HIGH)
+        self.assertEqual(result.summary, summary_expected)
+        self.assertEqual(result.to_markdown(), report_expected)
 
 
 if __name__ == "__main__":

@@ -13,25 +13,23 @@
 # limitations under the License.
 import re
 
-import openrelik_worker_common.reporting as rep
+from openrelik_worker_common import reporting
+
 from .utils import bruteforce_password_hashes
 
 
-def analyse_config(config):
+def analyze_config(file_content: str) -> reporting.TaskReport:
     """Extract security related configs from Jenkins configuration files.
 
     Args:
-      config (str): configuration file content.
+      file_content (str): configuration file content.
 
     Returns:
-      Tuple(
-        report_text(str): The report data
-        report_priority(int): The priority of the report (0 - 100)
-        summary(str): A summary of the report (used for task status)
-      )
+        report (reporting.TaskReport): The analysis report.
     """
     version = None
     credentials = []
+    config = file_content
 
     extracted_version = _extract_jenkins_version(config)
     if extracted_version:
@@ -40,9 +38,7 @@ def analyse_config(config):
     extracted_credentials = _extract_jenkins_credentials(config)
     credentials.extend(extracted_credentials)
 
-    (report, priority, summary) = analyze_jenkins(version, credentials, timeout=None)
-
-    return (report, priority, summary)
+    return analyze_jenkins(version, credentials, timeout=None)
 
 
 def _extract_jenkins_version(config):
@@ -97,15 +93,12 @@ def analyze_jenkins(version, credentials, timeout=300):
       timeout (int): Time in seconds to run password bruteforcing.
 
     Returns:
-      Tuple(
-        report_text(str): The report data
-        report_priority(int): The priority of the report (0 - 100)
-        summary(str): A summary of the report (used for task status)
-      )
+      report (reporting.TaskReport): The analysis report.
     """
-    report = rep.TaskReport("Jenkins Config Analyzer")
-    report.summary = ""
-    report.priority = rep.Priority.LOW
+    report = reporting.TaskReport("Jenkins Config Analyzer")
+    summary_section = report.add_section()
+    details_section = report.add_section()
+
     credentials_registry = {hash: username for username, hash in credentials}
 
     # "3200" is "bcrypt $2*$, Blowfish (Unix)"
@@ -115,29 +108,30 @@ def analyze_jenkins(version, credentials, timeout=300):
 
     if not version:
         version = "Unknown"
-    section = report.add_section()
-    section.add_bullet(f"Jenkins version: {version:s}")
+    details_section.add_bullet(f"Jenkins version: {version:s}")
 
     if weak_passwords:
-        report.priority = rep.Priority.CRITICAL
+        report.priority = reporting.Priority.CRITICAL
         report.summary = "Jenkins analysis found potential issues"
-        section.add_paragraph(report.summary)
+        summary_section.add_paragraph(report.summary)
+
         line = f"{len(weak_passwords):n} weak password(s) found:"
-        section.add_bullet(line)
+        details_section.add_bullet(line)
         for password_hash, plaintext in weak_passwords:
             line = 'User "{0:s}" with password "{1:s}"'.format(
                 credentials_registry.get(password_hash), plaintext
             )
-            section.add_bullet(line, level=2)
+            details_section.add_bullet(line, level=2)
     elif credentials_registry or version != "Unknown":
+        report.priority = reporting.Priority.MEDIUM
         report.summary = (
             f"Jenkins version {version} found with {len(credentials_registry)} "
             "credentials, but no issues detected"
         )
-        section.add_paragraph(report.summary)
-        report.priority = rep.Priority.MEDIUM
+        summary_section.add_paragraph(report.summary)
     else:
+        report.priority = reporting.Priority.LOW
         report.summary = "No Jenkins instance found"
-        section.add_paragraph(report.summary)
+        summary_section.add_paragraph(report.summary)
 
-    return (report.to_markdown(), report.priority, report.summary)
+    return report
