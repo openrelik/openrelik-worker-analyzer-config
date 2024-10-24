@@ -12,88 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from openrelik_worker_common.utils import (
-    create_output_file,
-    get_input_files,
-    task_result,
-)
-
-from openrelik_worker_common.reporting import Priority
-from .analyzers.jupyter_analyzer import analyse_config
-
-from .app import celery
+from .analyzers.jupyter_analyzer import analyze_config
+from .factory import task_factory
 
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-analyzer-config.tasks.jupyter_config_analyser"
-SHORT_TASK_NAME = "jupyter_config_analyser"
+TASK_NAME = "openrelik-worker-analyzer-config.tasks.jupyter_config_analyzer"
+TASK_NAME_SHORT = "jupyter_config_analyzer"
+
+COMPATIBLE_INPUTS = {
+    "data_types": ["*:artifact:JupyterConfigFile"],
+    "mime_types": [],
+    "filenames": ["jupyter_notebook_config.py"],
+}
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "Jupyter Notebook Configuration Analyzer",
-    "description": "Analyzes a Jupyter Notebook configuration file (JupyterConfigFile) for weak settings.",
+    "display_name": "Jupyter config analyzer",
+    "description": "Analyzes a Jupyter Notebook configuration file for weak settings.",
+    "compatible_inputs": COMPATIBLE_INPUTS,
 }
 
-EXPECTED_ARTIFACT = "JupyterConfigFile"
-
-
-@celery.task(bind=True, name=TASK_NAME, metadata=TASK_METADATA)
-def command(
-    self,
-    pipe_result: str = None,
-    input_files: list = None,
-    output_path: str = None,
-    workflow_id: str = None,
-    task_config: dict = None,
-) -> str:
-    """Run the Jupyter Configuration Analyzer on input files.
-
-    Args:
-        pipe_result: Base64-encoded result from the previous Celery task, if any.
-        input_files: List of input file dictionaries (unused if pipe_result exists).
-        output_path: Path to the output directory.
-        workflow_id: ID of the workflow.
-        task_config: User configuration for the task.
-
-    Returns:
-        Base64-encoded dictionary containing task results.
-    """
-    input_files = get_input_files(pipe_result, input_files or [])
-    output_files = []
-
-    summary = ""
-    priority = Priority.LOW
-
-    for input_file in input_files:
-        if (
-            input_file.get("data_type").lower()
-            == f"openrelik.worker.artifact.{EXPECTED_ARTIFACT}".lower()
-        ):
-            output_file = create_output_file(
-                output_path,
-                display_name=f"{input_file.get('filename')}-{SHORT_TASK_NAME}-report.md",
-                data_type=f"openrelik.task.{SHORT_TASK_NAME}.report",
-            )
-
-            # Read the input file
-            with open(input_file.get("path"), "r", encoding="utf-8") as config_file:
-                config = config_file.read()
-
-            (report, priority, summary) = analyse_config(config)
-
-            with open(output_file.path, "w", encoding="utf-8") as file1:
-                file1.write(report)
-
-            output_files.append(output_file.to_dict())
-
-    if not output_files:
-        raise RuntimeError(
-            f"No Jupyter Notebook config file found (artifact: {EXPECTED_ARTIFACT})"
-        )
-
-    return task_result(
-        output_files=output_files,
-        workflow_id=workflow_id,
-        command=None,
-        meta={"priority": str(priority), "report_summary": str(summary)},
-    )
+task_factory(
+    task_name=TASK_NAME,
+    task_name_short=TASK_NAME_SHORT,
+    compatible_inputs=COMPATIBLE_INPUTS,
+    task_metadata=TASK_METADATA,
+    analysis_function=analyze_config,
+    task_report_function=None,
+)

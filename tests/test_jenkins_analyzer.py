@@ -15,13 +15,13 @@ import unittest
 from unittest.mock import patch
 
 from src.analyzers.jenkins_analyzer import (
-    analyse_config,
+    analyze_config,
     _extract_jenkins_credentials,
     _extract_jenkins_version,
 )
 
 
-from openrelik_worker_common.reporting import Priority
+from openrelik_worker_common.reporting import TaskReport, Priority
 
 
 class Utils(unittest.TestCase):
@@ -62,22 +62,20 @@ class Utils(unittest.TestCase):
         )
         jenkins_config_report_expected = (
             """# Jenkins Config Analyzer\n"""
-            """\n"""
-            """* Jenkins version: 1.29.2\n"""
-            """\n"""
+            """\n\n"""
             """Jenkins analysis found potential issues\n"""
             """\n"""
+            """* Jenkins version: 1.29.2\n"""
             """* 1 weak password(s) found:\n"""
             """    * User "Ramses de Beer" with password \"test\""""
         )
         jenkins_config_summary_expected = "Jenkins analysis found potential issues"
-        result = analyse_config(config)
-        expected = (
-            jenkins_config_report_expected,
-            Priority.CRITICAL,
-            jenkins_config_summary_expected,
-        )
-        self.assertTupleEqual(result, expected)
+
+        result = analyze_config(config)
+        self.assertIsInstance(result, TaskReport)
+        self.assertEqual(result.priority, Priority.CRITICAL)
+        self.assertEqual(result.summary, jenkins_config_summary_expected)
+        self.assertEqual(result.to_markdown(), jenkins_config_report_expected)
 
 
 if __name__ == "__main__":

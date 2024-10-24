@@ -13,8 +13,8 @@
 # limitations under the License.
 import unittest
 
-from src.analyzers.jupyter_analyzer import analyse_config
-from openrelik_worker_common.reporting import Priority
+from src.analyzers.jupyter_analyzer import analyze_config
+from openrelik_worker_common.reporting import Priority, TaskReport
 
 
 class Utils(unittest.TestCase):
@@ -42,9 +42,12 @@ class Utils(unittest.TestCase):
         config_summary_expected = (
             "Insecure Jupyter Notebook configuration found. Total misconfigs: 4"
         )
-        result = analyse_config(config)
-        expected = (config_report_expected, Priority.HIGH, config_summary_expected)
-        self.assertTupleEqual(result, expected)
+
+        result = analyze_config(config)
+        self.assertIsInstance(result, TaskReport)
+        self.assertEqual(result.priority, Priority.HIGH)
+        self.assertEqual(result.summary, config_summary_expected)
+        self.assertEqual(result.to_markdown(), config_report_expected)
 
 
 if __name__ == "__main__":

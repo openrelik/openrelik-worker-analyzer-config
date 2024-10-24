@@ -12,39 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openrelik_worker_common import reporting as rep
+from openrelik_worker_common import reporting
 
 
-def analyse_config(jupyter_config):
+def analyze_config(file_content: str) -> reporting.TaskReport:
     """Extract security related configs from Jupyter configuration files.
 
     Args:
-      jupyter_config (str): configuration file content.
+      file_content (str): configuration file content.
 
     Returns:
-      Tuple(
-        report_text(str): The report data
-        report_priority(int): The priority of the report (0 - 100)
-        summary(str): A summary of the report (used for task status)
-      )
+        report (reporting.TaskReport): The analysis report.
     """
     num_misconfigs = 0
-    report = rep.TaskReport("Jupyter Config Analyzer")
-    summary_section = report.add_section()
-    section = report.add_section()
-    for line in jupyter_config.split("\n"):
+    config = file_content
 
+    report = reporting.TaskReport("Jupyter Config Analyzer")
+    summary_section = report.add_section()
+    details_section = report.add_section()
+
+    for line in config.split("\n"):
         if all(x in line for x in ["disable_check_xsrf", "True"]):
-            section.add_bullet("XSRF protection is disabled.")
+            details_section.add_bullet("XSRF protection is disabled.")
             num_misconfigs += 1
             continue
         if all(x in line for x in ["allow_root", "True"]):
-            section.add_bullet("Juypter Notebook allowed to run as root.")
+            details_section.add_bullet("Juypter Notebook allowed to run as root.")
             num_misconfigs += 1
             continue
         if "NotebookApp.password" in line:
             if all(x in line for x in ["required", "False"]):
-                section.add_bullet(
+                details_section.add_bullet(
                     "Password is not required to access this Jupyter Notebook."
                 )
                 num_misconfigs += 1
@@ -53,20 +51,24 @@ def analyse_config(jupyter_config):
                 password_hash = line.split("=")
                 if len(password_hash) > 1:
                     if password_hash[1].strip() == "''":
-                        section.add_bullet(
+                        details_section.add_bullet(
                             "There is no password set for this Jupyter Notebook."
                         )
                         num_misconfigs += 1
         if all(x in line for x in ["allow_remote_access", "True"]):
-            section.add_bullet("Remote access is enabled on this Jupyter Notebook.")
+            details_section.add_bullet(
+                "Remote access is enabled on this Jupyter Notebook."
+            )
             num_misconfigs += 1
             continue
 
     if num_misconfigs > 0:
+        report.priority = reporting.Priority.HIGH
         report.summary = f"Insecure Jupyter Notebook configuration found. Total misconfigs: {num_misconfigs}"
         summary_section.add_paragraph(report.summary)
-        return (report.to_markdown(), rep.Priority.HIGH, report.summary)
+        return report
 
-    report.summary = "No issues found in Jupyter Notebook  configuration."
+    report.priority = reporting.Priority.LOW
+    report.summary = "No issues found in Jupyter Notebook configuration."
     summary_section.add_paragraph(report.summary)
-    return (report.to_markdown(), rep.Priority.LOW, report.summary)
+    return report
