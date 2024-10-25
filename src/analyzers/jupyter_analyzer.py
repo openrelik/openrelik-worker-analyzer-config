@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openrelik_worker_common import reporting
+from openrelik_worker_common.reporting import Report, Priority
 
 
-def analyze_config(file_content: str) -> reporting.TaskReport:
+def analyze_config(file_content: str) -> Report:
     """Extract security related configs from Jupyter configuration files.
 
     Args:
       file_content (str): configuration file content.
 
     Returns:
-        report (reporting.TaskReport): The analysis report.
+        report (Report): The analysis report.
     """
     num_misconfigs = 0
     config = file_content
 
-    report = reporting.TaskReport("Jupyter Config Analyzer")
+    report = Report("Jupyter Config Analyzer")
     summary_section = report.add_section()
     details_section = report.add_section()
 
@@ -63,12 +63,12 @@ def analyze_config(file_content: str) -> reporting.TaskReport:
             continue
 
     if num_misconfigs > 0:
-        report.priority = reporting.Priority.HIGH
+        report.priority = Priority.HIGH
         report.summary = f"Insecure Jupyter Notebook configuration found. Total misconfigs: {num_misconfigs}"
         summary_section.add_paragraph(report.summary)
         return report
 
-    report.priority = reporting.Priority.LOW
+    report.priority = Priority.LOW
     report.summary = "No issues found in Jupyter Notebook configuration."
     summary_section.add_paragraph(report.summary)
     return report

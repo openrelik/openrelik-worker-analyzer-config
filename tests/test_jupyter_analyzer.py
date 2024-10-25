@@ -14,7 +14,7 @@
 import unittest
 
 from src.analyzers.jupyter_analyzer import analyze_config
-from openrelik_worker_common.reporting import Priority, TaskReport
+from openrelik_worker_common.reporting import Priority, Report
 
 
 class Utils(unittest.TestCase):
@@ -44,7 +44,7 @@ class Utils(unittest.TestCase):
         )
 
         result = analyze_config(config)
-        self.assertIsInstance(result, TaskReport)
+        self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, config_summary_expected)
         self.assertEqual(result.to_markdown(), config_report_expected)

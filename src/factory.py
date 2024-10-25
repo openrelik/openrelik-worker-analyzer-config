@@ -14,13 +14,14 @@
 
 from typing import Callable
 
-from .app import celery
 from openrelik_worker_common.utils import (
-    create_output_file,
     create_file_report,
+    create_output_file,
     get_input_files,
     task_result,
 )
+
+from .app import celery
 
 
 def task_factory(

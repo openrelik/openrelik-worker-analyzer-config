@@ -13,19 +13,20 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common import reporting
+from openrelik_worker_common.reporting import Report, Priority
+
 
 from .utils import bruteforce_password_hashes
 
 
-def analyze_config(file_content: str) -> reporting.TaskReport:
+def analyze_config(file_content: str) -> Report:
     """Extract security related configs from Jenkins configuration files.
 
     Args:
       file_content (str): configuration file content.
 
     Returns:
-        report (reporting.TaskReport): The analysis report.
+        report (Report): The analysis report.
     """
     version = None
     credentials = []
@@ -93,9 +94,9 @@ def analyze_jenkins(version, credentials, timeout=300):
       timeout (int): Time in seconds to run password bruteforcing.
 
     Returns:
-      report (reporting.TaskReport): The analysis report.
+      report (Report): The analysis report.
     """
-    report = reporting.TaskReport("Jenkins Config Analyzer")
+    report = Report("Jenkins Config Analyzer")
     summary_section = report.add_section()
     details_section = report.add_section()
 
@@ -111,7 +112,7 @@ def analyze_jenkins(version, credentials, timeout=300):
     details_section.add_bullet(f"Jenkins version: {version:s}")
 
     if weak_passwords:
-        report.priority = reporting.Priority.CRITICAL
+        report.priority = Priority.CRITICAL
         report.summary = "Jenkins analysis found potential issues"
         summary_section.add_paragraph(report.summary)
 
@@ -123,14 +124,14 @@ def analyze_jenkins(version, credentials, timeout=300):
             )
             details_section.add_bullet(line, level=2)
     elif credentials_registry or version != "Unknown":
-        report.priority = reporting.Priority.MEDIUM
+        report.priority = Priority.MEDIUM
         report.summary = (
             f"Jenkins version {version} found with {len(credentials_registry)} "
             "credentials, but no issues detected"
         )
         summary_section.add_paragraph(report.summary)
     else:
-        report.priority = reporting.Priority.LOW
+        report.priority = Priority.LOW
         report.summary = "No Jenkins instance found"
         summary_section.add_paragraph(report.summary)
 

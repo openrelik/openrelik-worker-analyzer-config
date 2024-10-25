@@ -13,23 +13,23 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common import reporting
+from openrelik_worker_common.reporting import Report, Priority
 
 
-def analyze_config(file_content: str) -> reporting.TaskReport:
+def analyze_config(file_content: str) -> Report:
     """Analyzes an SSHD configuration.
 
     Args:
       file_content (str): configuration file content.
 
     Returns:
-        report (reporting.TaskReport): The analysis report.
+        report (Report): The analysis report.
     """
     num_misconfigs = 0
     config = file_content
 
     # Create a report with two sections.
-    report = reporting.TaskReport("SSHD Config Analyzer")
+    report = Report("SSHD Config Analyzer")
     summary_section = report.add_section()
     details_section = report.add_section()
 
@@ -60,12 +60,12 @@ def analyze_config(file_content: str) -> reporting.TaskReport:
         report.summary = (
             f"Insecure SSHD configuration found. Total misconfigs: {num_misconfigs}"
         )
-        report.priority = reporting.Priority.HIGH
+        report.priority = Priority.HIGH
         summary_section.add_paragraph(report.summary)
         return report
 
     report.summary = "No issues found in SSH configuration"
-    report.priority = reporting.Priority.LOW
+    report.priority = Priority.LOW
     summary_section.add_paragraph(report.summary)
     return report
 
@@ -77,6 +77,6 @@ def create_task_report(file_reports: list = []):
         file_reports (list): A list of file reports.
 
     Returns:
-        report (reporting.TaskReport): The task report.
+        report (Report): The task report.
     """
     pass

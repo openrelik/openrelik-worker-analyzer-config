@@ -21,7 +21,7 @@ from src.analyzers.jenkins_analyzer import (
 )
 
 
-from openrelik_worker_common.reporting import TaskReport, Priority
+from openrelik_worker_common.reporting import Report, Priority
 
 
 class Utils(unittest.TestCase):
@@ -72,7 +72,7 @@ class Utils(unittest.TestCase):
         jenkins_config_summary_expected = "Jenkins analysis found potential issues"
 
         result = analyze_config(config)
-        self.assertIsInstance(result, TaskReport)
+        self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.CRITICAL)
         self.assertEqual(result.summary, jenkins_config_summary_expected)
         self.assertEqual(result.to_markdown(), jenkins_config_report_expected)
