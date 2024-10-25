@@ -27,8 +27,8 @@ COMPATIBLE_INPUTS = {
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "SSHD config analyzer",
-    "description": "Analyzes a SSHD daemon configuration file for weak settings.",
+    "display_name": "Config analyzer: SSHD",
+    "description": "Analyzes a SSHD daemon config file for weak settings",
     "compatible_inputs": COMPATIBLE_INPUTS,
 }
 

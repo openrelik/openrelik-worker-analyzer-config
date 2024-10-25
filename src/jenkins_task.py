@@ -27,8 +27,8 @@ COMPATIBLE_INPUTS = {
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "Jenkins Configuration Analyzer",
-    "description": "Analyzes a Jenkins configuration file (JenkinsConfigFile) for weak settings.",
+    "display_name": "Config analyzer: Jenkins",
+    "description": "Analyzes a Jenkins config file for weak settings",
     "compatible_inputs": COMPATIBLE_INPUTS,
 }
 

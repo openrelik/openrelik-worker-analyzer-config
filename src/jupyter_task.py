@@ -27,8 +27,8 @@ COMPATIBLE_INPUTS = {
 
 # Task metadata for registration in the core system.
 TASK_METADATA = {
-    "display_name": "Jupyter config analyzer",
-    "description": "Analyzes a Jupyter Notebook configuration file for weak settings.",
+    "display_name": "Config analyzer: Jupyter",
+    "description": "Analyzes a Jupyter Notebook config file for weak settings",
     "compatible_inputs": COMPATIBLE_INPUTS,
 }
 
