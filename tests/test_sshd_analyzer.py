@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from openrelik_worker_common.reporting import Priority, TaskReport
+from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.sshd_analyzer import analyze_config
 
@@ -30,7 +30,7 @@ class Utils(unittest.TestCase):
         )
         summary = "No issues found in SSH configuration"
 
-        self.assertIsInstance(result, TaskReport)
+        self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.LOW)
         self.assertEqual(result.summary, summary)
         self.assertEqual(result.to_markdown(), report)
@@ -52,7 +52,7 @@ class Utils(unittest.TestCase):
         summary_expected = "Insecure SSHD configuration found. Total misconfigs: 3"
 
         result = analyze_config(sshd_config_weak)
-        self.assertIsInstance(result, TaskReport)
+        self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, summary_expected)
         self.assertEqual(result.to_markdown(), report_expected)
