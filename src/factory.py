@@ -14,12 +14,10 @@
 
 from typing import Callable
 
-from openrelik_worker_common.utils import (
-    create_file_report,
-    create_output_file,
-    get_input_files,
-    task_result,
-)
+from openrelik_worker_common.file_utils import create_output_file
+from openrelik_worker_common.task_utils import create_task_result, get_input_files
+from openrelik_worker_common.reporting import serialize_file_report
+
 
 from .app import celery
 
@@ -77,7 +75,9 @@ def task_factory(
 
             # Use the provided analysis function.
             analysis_report = analysis_function(config_file)
-            file_report = create_file_report(input_file, report_file, analysis_report)
+            file_report = serialize_file_report(
+                input_file, report_file, analysis_report
+            )
 
             with open(report_file.path, "w", encoding="utf-8") as fh:
                 fh.write(analysis_report.to_markdown())
@@ -91,7 +91,7 @@ def task_factory(
         if not output_files:
             raise RuntimeError(f"{task_name_short} didn't create any output files")
 
-        return task_result(
+        return create_task_result(
             output_files=output_files,
             workflow_id=workflow_id,
             file_reports=file_reports,
