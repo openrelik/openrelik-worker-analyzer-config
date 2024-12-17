@@ -35,33 +35,20 @@ def analyze_config(file_content: str) -> Report:
 
     bind_everywhere_re = re.compile(
         r'^\s*bind[\s"]*0\.0\.0\.0', re.IGNORECASE | re.MULTILINE)
+    default_port_re = re.compile(r"port\s+6379\b", re.IGNORECASE)
+    missing_logs_re = re.compile(r'^logfile\s+"[^"]+"$', re.MULTILINE)
 
     if re.search(bind_everywhere_re, config):
       num_misconfigs += 1
       details_section.add_bullet("Redis listening on every IP")
 
-    #permit_root_login_re = re.compile(
-    #    r"^\s*PermitRootLogin\s*(yes|prohibit-password|without-password)",
-    #    re.IGNORECASE | re.MULTILINE,
-    #)
-    #password_authentication_re = re.compile(
-    #    r'^\s*PasswordAuthentication[\s"]*yes', re.IGNORECASE | re.MULTILINE
-    #)
-    #permit_empty_passwords_re = re.compile(
-    #    r'^\s*PermitEmptyPasswords[\s"]*Yes', re.IGNORECASE | re.MULTILINE
-    #)
+    if re.search(default_port_re, config):
+      num_misconfigs += 1
+      details_section.add_bullet("Redis configured with default port (6379)")
 
-    #if re.search(permit_root_login_re, config):
-    #    details_section.add_bullet("Root login enabled.")
-    #    num_misconfigs += 1
-
-    #if re.search(password_authentication_re, config):
-    #    details_section.add_bullet(("Password authentication enabled."))
-    #    num_misconfigs += 1
-
-    #if re.search(permit_empty_passwords_re, config):
-    #    details_section.add_bullet("Empty passwords permitted.")
-    #    num_misconfigs += 1
+    if not re.search(missing_logs_re, config):
+      num_misconfigs += 1
+      details_section.add_bullet("Log destination not configured")
 
     if num_misconfigs > 0:
         report.summary = (
