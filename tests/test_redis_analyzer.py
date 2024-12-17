@@ -26,15 +26,9 @@ class Utils(unittest.TestCase):
         report = (
             """# Redis Config Analyzer\n"""
             """\n\n"""
-<<<<<<< HEAD
             """No Redis config found\n\n"""
         )
         summary = "No Redis config found"
-=======
-            """No issues found in Redis configuration\n\n"""
-        )
-        summary = "No issues found in Redis configuration"
->>>>>>> 0700bc7 (additional commits)
 
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.LOW)
