@@ -4,7 +4,6 @@ version = "2024.11.27"
 description = "Analyze config files"
 authors = ["Ramses de Beer <ramsesdebeer@gmail.com>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
