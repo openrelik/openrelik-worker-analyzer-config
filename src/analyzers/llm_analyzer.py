@@ -103,8 +103,7 @@ def analyze_text_content(
 
 def llm_analyze_artifact(
     artifact_content: str, artifact_name: str, task_config: Dict[str, Any]
-) -> Tuple[Priority,
-           str]:
+) -> Tuple[Priority, str]:
     """Analyses forensics artifact using GenAI.
 
     Args:
