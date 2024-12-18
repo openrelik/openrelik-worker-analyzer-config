@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from typing import Any, Dict, Tuple
 
 from openrelik_ai_common.providers import manager
 from openrelik_worker_common.reporting import Priority
 from openrelik_worker_common.reporting import Report
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 CONTEXT_PROMPT = """
 I'm a security engineer investigating a potential cybersecurity incident and need your help analyzing 
@@ -83,6 +86,11 @@ def analyze_text_content(
     Returns:
         report (Report): The analysis report.
     """
+    logger.info(
+        "LLM Analyzer 'analyze_text_content', filename: %s, path: %s",
+        input_file.get("filename"),
+        input_file.get("path"),
+    )
     # Read the input file to be analyzed.
     with open(input_file.get("path"), "r", encoding="utf-8") as fh:
         file_content = fh.read()

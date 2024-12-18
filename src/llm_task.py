@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 from .analyzers.llm_analyzer import analyze_text_content
 from .factory import task_factory
 from openrelik_ai_common.providers import config
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # Task name used to register and route the task to the correct queue.
-TASK_NAME = "openrelik-worker-ai.tasks.llm_analyzer"
+TASK_NAME = "openrelik-worker-analyzer-config.tasks.llm_analyzer"
 TASK_NAME_SHORT = "llm_analyzer"
 
 LLM_ARTIFACTS = [
@@ -115,6 +120,9 @@ TASK_METADATA = {
         },
     ],
 }
+
+
+logger.info("LLM Analyzer task starts!")
 
 task_factory(
     task_name=TASK_NAME,

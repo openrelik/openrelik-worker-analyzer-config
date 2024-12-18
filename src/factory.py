@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 from typing import Callable
 
 from openrelik_worker_common.file_utils import create_output_file
@@ -20,6 +22,9 @@ from openrelik_worker_common.reporting import serialize_file_report
 
 
 from .app import celery
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def task_factory(
@@ -67,6 +72,14 @@ def task_factory(
                 output_path,
                 display_name=f"{input_file.get('display_name')}-{task_name_short}-report.md",
                 data_type=f"worker:openrelik:analyzer-config:{task_name_short}:report",
+            )
+
+            logger.info(
+                "%s '%s', filename: %s, path: %s",
+                task_name_short,
+                analysis_function.__name__,
+                input_file.get("filename"),
+                input_file.get("path"),
             )
 
             # Use the provided analysis function.
