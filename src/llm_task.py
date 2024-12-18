@@ -81,7 +81,7 @@ LLM_ARTIFACTS = [
 ]
 
 COMPATIBLE_INPUTS = {
-    "data_types": ["*:artifact:JupyterConfigFile"],
+    "data_types": LLM_ARTIFACTS,
     "mime_types": ["text/plain"],
 }
 
