@@ -15,17 +15,20 @@
 from openrelik_worker_common.reporting import Report, Priority
 
 
-def analyze_config(file_content: str) -> Report:
+def analyze_config(input_file: dict, task_config: dict) -> Report:
     """Extract security related configs from Jupyter configuration files.
 
     Args:
-      file_content (str): configuration file content.
+      input_file: The input file dictionary.
+      task_config: The task configuration dictionary.
 
     Returns:
         report (Report): The analysis report.
     """
+    # Read the input file to be analyzed.
+    with open(input_file.get("path"), "r", encoding="utf-8") as fh:
+        config = fh.read()
     num_misconfigs = 0
-    config = file_content
 
     report = Report("Jupyter Config Analyzer")
     summary_section = report.add_section()
