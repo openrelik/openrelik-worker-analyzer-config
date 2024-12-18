@@ -26,9 +26,9 @@ class Utils(unittest.TestCase):
         report = (
             """# Redis Config Analyzer\n"""
             """\n\n"""
-            """No issues found in Redis configuration\n\n"""
+            """No Redis config found\n\n"""
         )
-        summary = "No issues found in Redis configuration"
+        summary = "No Redis config found"
 
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.LOW)
