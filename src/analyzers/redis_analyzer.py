@@ -64,6 +64,7 @@ def analyze_config(file_content: str) -> Report:
           summary_section.add_paragraph(report.summary)
           return report
 
+<<<<<<< HEAD
 =======
     if re.search(default_port_re, config):
       num_misconfigs += 1
@@ -84,6 +85,8 @@ def analyze_config(file_content: str) -> Report:
     report.summary = "No issues found in Redis configuration"
     report.priority = Priority.LOW
 >>>>>>> 0700bc7 (additional commits)
+=======
+>>>>>>> 0401166 (fix merge conflicts)
     summary_section.add_paragraph(report.summary)
     return report
 
