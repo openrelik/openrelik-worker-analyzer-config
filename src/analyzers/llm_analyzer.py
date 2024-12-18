@@ -95,23 +95,23 @@ def analyze_text_content(
     with open(input_file.get("path"), "r", encoding="utf-8") as fh:
         file_content = fh.read()
 
-    priority, summary = llm_analyze_artifact(
+    priority, summary, details = llm_analyze_artifact(
         file_content,
         f"{input_file.get('filename')}-{input_file.get('data_type')}",
         task_config,
     )
 
     report = Report("LLM Analyzer")
-    summary_section = report.add_section()
+    details_section = report.add_section()
     report.priority = priority
     report.summary = summary
-    summary_section.add_paragraph(report.summary)
+    details_section.add_paragraph(details)
     return report
 
 
 def llm_analyze_artifact(
     artifact_content: str, artifact_name: str, task_config: Dict[str, Any]
-) -> Tuple[Priority, str]:
+) -> Tuple[Priority, str, str]:
     """Analyses forensics artifact using GenAI.
 
     Args:
@@ -132,14 +132,18 @@ def llm_analyze_artifact(
     max_input_tokens = None
     if task_config and task_config.get("model_max_input_tokens"):
         max_input_tokens = task_config.get("model_max_input_tokens")
+    logger.info(
+        "LLM Analyzer 'llm_analyze_artifact', provider: %s, model: %s",
+        llm_provider,
+        llm_model,
+    )
     provider = manager.LLMManager().get_provider(llm_provider)
     llm = provider(
         model_name=llm_model,
         system_instructions=CONTEXT_PROMPT,
         max_input_tokens=max_input_tokens,
     )
-    # we don't care about the response, just the chat session
-    _ = llm.chat(
+    details = llm.chat(
         prompt=REQUEST_PROMPT.format(artifact_name=artifact_name),
         file_content=artifact_content,
     )
@@ -156,4 +160,4 @@ def llm_analyze_artifact(
     else:
         # Default to INFO to avoid noise
         priority = Priority.INFO
-    return priority, summary
+    return priority, summary, details

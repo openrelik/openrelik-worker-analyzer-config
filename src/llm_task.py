@@ -87,7 +87,21 @@ LLM_ARTIFACTS = [
 
 COMPATIBLE_INPUTS = {
     "data_types": LLM_ARTIFACTS,
-    "mime_types": ["text/plain"],
+    "mime_types": [
+        "text/plain",
+        "application/xml",
+        "text/xml",
+        "application/xml",
+        "application/atom+xml",
+        "application/svg+xml",
+        "application/json",
+        "text/yaml",
+        "application/x-yaml",
+        "application/toml",
+        "text/plain",
+        "text/csv",
+    ],
+    "filenames": ["config.xml", "config.yaml"],
 }
 
 # Task metadata for registration in the core system.
