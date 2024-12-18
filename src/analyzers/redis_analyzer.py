@@ -38,7 +38,6 @@ def analyze_config(file_content: str) -> Report:
     default_port_re = re.compile(r"port\s+6379\b", re.IGNORECASE)
     missing_logs_re = re.compile(r'^logfile\s+"[^"]+"$', re.MULTILINE)
 
-<<<<<<< HEAD
     if config is None or config == "":
       report.summary = "No Redis config found"
       report.priority = Priority.LOW
@@ -64,30 +63,6 @@ def analyze_config(file_content: str) -> Report:
           summary_section.add_paragraph(report.summary)
           return report
 
-=======
-    if re.search(bind_everywhere_re, config):
-      num_misconfigs += 1
-      details_section.add_bullet("Redis listening on every IP")
-
-    if re.search(default_port_re, config):
-      num_misconfigs += 1
-      details_section.add_bullet("Redis configured with default port (6379)")
-
-    if not re.search(missing_logs_re, config):
-      num_misconfigs += 1
-      details_section.add_bullet("Log destination not configured")
-
-    if num_misconfigs > 0:
-        report.summary = (
-            f"Insecure Redis configuration found. Total misconfigs: {num_misconfigs}"
-        )
-        report.priority = Priority.HIGH
-        summary_section.add_paragraph(report.summary)
-        return report
-
-    report.summary = "No issues found in Redis configuration"
-    report.priority = Priority.LOW
->>>>>>> 3aac0ca85c410e726307ccfcbaac93441373e09a
     summary_section.add_paragraph(report.summary)
     return report
 
