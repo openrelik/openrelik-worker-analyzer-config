@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
+
 from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.redis_analyzer import analyze_config
 
 
-class Utils(unittest.TestCase):
-    """Test the analyzer functions."""
+class RedisTests(unittest.TestCase):
+    """Test the Redis analyzer functions."""
 
     def test_redisconfig_empty(self):
         """Test empty Redis config."""
