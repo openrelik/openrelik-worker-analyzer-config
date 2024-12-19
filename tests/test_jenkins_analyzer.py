@@ -25,7 +25,7 @@ from openrelik_worker_common.reporting import Report, Priority
 
 
 class JenkinsTest(unittest.TestCase):
-    """Test the analyzer functions."""
+    """Test the Jenkins analyzer functions."""
 
     def test_jenkins_extract_versions(self):
         """Test Jenkins version extraction."""

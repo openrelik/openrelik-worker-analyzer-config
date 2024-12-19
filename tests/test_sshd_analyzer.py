@@ -18,7 +18,7 @@ from src.analyzers.sshd_analyzer import analyze_config
 
 
 class SshdTests(unittest.TestCase):
-    """Test the analyzer functions."""
+    """Test the sshd analyzer functions."""
 
     def test_sshdconfig_empty(self):
         """Test empty sshd config."""

@@ -18,7 +18,7 @@ from openrelik_worker_common.reporting import Priority, Report
 
 
 class JupyterTests(unittest.TestCase):
-    """Test the analyzer functions."""
+    """Test the Jupyter analyzer functions."""
 
     def test_analyse_config(self):
         """Test Jupyter Notebook config."""
