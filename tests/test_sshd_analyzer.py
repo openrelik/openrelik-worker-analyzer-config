@@ -17,7 +17,7 @@ from openrelik_worker_common.reporting import Priority, Report
 from src.analyzers.sshd_analyzer import analyze_config
 
 
-class Utils(unittest.TestCase):
+class SshdTests(unittest.TestCase):
     """Test the analyzer functions."""
 
     def test_sshdconfig_empty(self):
