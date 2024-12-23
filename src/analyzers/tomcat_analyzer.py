@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Analyze Tomcat configuration files."""
 
 import re
 
@@ -82,15 +83,3 @@ def analyze_config(file_content: str) -> Report:
     report.priority = Priority.LOW
     summary_section.add_paragraph(report.summary)
     return report
-
-
-def create_task_report(file_reports: list = []):
-    """Creates a task report from a list of file reports.
-
-    Args:
-        file_reports (list): A list of file reports.
-
-    Returns:
-        report (Report): The task report.
-    """
-    pass

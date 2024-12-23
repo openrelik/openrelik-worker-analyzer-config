@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Tomcat configuration analyzer tests."""
+
 import textwrap
 import unittest
 from openrelik_worker_common.reporting import Priority, Report
@@ -38,7 +40,7 @@ class TomCatTests(unittest.TestCase):
                                  
         Tomcat analysis found misconfigs. Total: 1
         """).strip()
-      
+
         summary = "Tomcat analysis found misconfigs. Total: 1"
 
         # Act
@@ -59,7 +61,7 @@ class TomCatTests(unittest.TestCase):
         21-Mar-2017 19:21:08.140 INFO [localhost-startStop-2] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive C:\Program Files\Apache Software Foundation\Tomcat 9.0\webapps\MyAwesomeApp.war
         10-Sep-2012 11:41:12.283 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive /opt/apache-tomcat-8.0.32/webapps/badboy.war
         """
-        
+
         report = textwrap.dedent(r"""
         # Tomcat Config Analyzer
 
@@ -105,7 +107,7 @@ class TomCatTests(unittest.TestCase):
 
         # Act
         result = analyze_config(tomcat_password_file)
-      
+
         # Assert
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
