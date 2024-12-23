@@ -24,8 +24,8 @@ from src.analyzers.jenkins_analyzer import (
 from openrelik_worker_common.reporting import Report, Priority
 
 
-class Utils(unittest.TestCase):
-    """Test the analyzer functions."""
+class JenkinsTest(unittest.TestCase):
+    """Test the Jenkins analyzer functions."""
 
     def test_jenkins_extract_versions(self):
         """Test Jenkins version extraction."""
