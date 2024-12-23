@@ -18,55 +18,70 @@ import re
 from openrelik_worker_common.reporting import Report, Priority
 
 def analyze_config(file_content: str) -> Report:
-  """Analyze a Tomcat file.
+    """Analyze a Tomcat file.
 
-  - Search for clear text password entries in user configuration file
-  - Search for .war deployment
-  - Search for management control panel activity
+    - Search for clear text password entries in user configuration file
+    - Search for .war deployment
+    - Search for management control panel activity
 
-  Args:
-    config (str): Tomcat file content.
-  Returns:
-    report (Report): The analysis report.
-  """
-  num_misconfigs = 0
-  config = file_content
+    Args:
+      config (str): Tomcat file content.
+    Returns:
+      report (Report): The analysis report.
+    """
+    num_misconfigs = 0
+    config = file_content
 
-  # Create a report with two sections.
-  report = Report("Tomcat Config Analyzer")
-  details_section = report.add_section()
-  summary_section = report.add_section()
+    # Create a report with two sections.
+    report = Report("Tomcat Config Analyzer")
+    details_section = report.add_section()
+    summary_section = report.add_section()
 
-  tomcat_user_passwords_re = re.compile("(^.*password.*)", re.MULTILINE)
-  tomcat_deploy_re = re.compile(
-      "(^.*Deploying web application archive.*)", re.MULTILINE)
-  tomcat_manager_activity_re = re.compile(
-      "(^.*POST /manager/html/upload.*)", re.MULTILINE)
+    tomcat_deploy_re = re.compile(
+        "(^.*Deploying web application archive.*)", re.MULTILINE)
+    tomcat_manager_activity_re = re.compile(
+        "(^.*POST /manager/html/upload.*)", re.MULTILINE)
+    tomcat_readonly_re = re.compile(
+        "<param-name>readonly</param-name>",
+        re.IGNORECASE
+    )
+    tomcat_readonly_false_re = re.compile(
+        r"<param-name>readonly</param-name>\s*<param-value>false</param-value>",
+        re.IGNORECASE
+    )
+    tomcat_user_passwords_re = re.compile("(^.*password.*)", re.MULTILINE)
 
-  for password_entry in re.findall(tomcat_user_passwords_re, config):
-    num_misconfigs += 1
-    details_section.add_bullet("tomcat user: " + password_entry.strip())
 
-  for deployment_entry in re.findall(tomcat_deploy_re, config):
-    num_misconfigs += 1
-    details_section.add_bullet("Tomcat App Deployed: " + deployment_entry.strip())
+    for password_entry in re.findall(tomcat_user_passwords_re, config):
+        num_misconfigs += 1
+        details_section.add_bullet("tomcat user: " + password_entry.strip())
 
-  for mgmt_entry in re.findall(tomcat_manager_activity_re, config):
-    num_misconfigs += 1
-    details_section.add_bullet("Tomcat Management: " + mgmt_entry.strip())
+    for deployment_entry in re.findall(tomcat_deploy_re, config):
+        num_misconfigs += 1
+        details_section.add_bullet(
+            "Tomcat App Deployed: " + deployment_entry.strip())
 
-  if num_misconfigs > 0:
-      report.summary = (
-          f"Tomcat analysis found misconfigs. Total: {num_misconfigs}"
-      )
-      report.priority = Priority.HIGH
-      summary_section.add_paragraph(report.summary)
-      return report
+    for mgmt_entry in re.findall(tomcat_manager_activity_re, config):
+        num_misconfigs += 1
+        details_section.add_bullet("Tomcat Management: " + mgmt_entry.strip())
 
-  report.summary = "No issues found in Tomcat configuration"
-  report.priority = Priority.LOW
-  summary_section.add_paragraph(report.summary)
-  return report
+    if re.search(tomcat_readonly_re, config):
+        if re.search(tomcat_readonly_false_re, config):
+            num_misconfigs += 1
+            details_section.add_bullet("Tomcat servlet IS NOT read-only")
+
+    if num_misconfigs > 0:
+        report.summary = (
+            f"Tomcat analysis found misconfigs. Total: {num_misconfigs}"
+        )
+        report.priority = Priority.HIGH
+        summary_section.add_paragraph(report.summary)
+        return report
+
+    report.summary = "No issues found in Tomcat configuration"
+    report.priority = Priority.LOW
+    summary_section.add_paragraph(report.summary)
+    return report
 
 
 def create_task_report(file_reports: list = []):
