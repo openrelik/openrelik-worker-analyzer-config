@@ -13,16 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#import os
 import re
 
 from openrelik_worker_common.reporting import Report, Priority
-
-#from turbinia.evidence import ReportText
-#from turbinia.evidence import EvidenceState as state
-#from turbinia.lib import text_formatter as fmt
-#from turbinia.workers import TurbiniaTask
-#from turbinia.workers import Priority
 
 def analyze_config(file_content: str) -> Report:
   """Analyze a Tomcat file.
@@ -36,13 +29,13 @@ def analyze_config(file_content: str) -> Report:
   Returns:
     report (Report): The analysis report.
   """
-  num_misconfigs = []
+  num_misconfigs = 0
   config = file_content
 
   # Create a report with two sections.
   report = Report("Tomcat Config Analyzer")
-  summary_section = report.add_section()
   details_section = report.add_section()
+  summary_section = report.add_section()
 
   tomcat_user_passwords_re = re.compile("(^.*password.*)", re.MULTILINE)
   tomcat_deploy_re = re.compile(
@@ -52,15 +45,15 @@ def analyze_config(file_content: str) -> Report:
 
   for password_entry in re.findall(tomcat_user_passwords_re, config):
     num_misconfigs += 1
-    details_section.add("Tomcat user: " + password_entry.strip())
+    details_section.add_bullet("tomcat user: " + password_entry.strip())
 
   for deployment_entry in re.findall(tomcat_deploy_re, config):
     num_misconfigs += 1
-    details_section.add("Tomcat App Deployed: " + deployment_entry.strip())
+    details_section.add_bullet("Tomcat App Deployed: " + deployment_entry.strip())
 
   for mgmt_entry in re.findall(tomcat_manager_activity_re, config):
     num_misconfigs += 1
-    details_section.add("Tomcat Management: " + mgmt_entry.strip())
+    details_section.add_bullet("Tomcat Management: " + mgmt_entry.strip())
 
   if num_misconfigs > 0:
       report.summary = (
@@ -75,46 +68,6 @@ def analyze_config(file_content: str) -> Report:
   summary_section.add_paragraph(report.summary)
   return report
 
-#class TomcatAnalysisTask(TurbiniaTask):
-#  """Task to analyze a Tomcat file."""
-#
-#  # Input Evidence is ExportedFileArtifact so does not need to be pre-processed.
-#  REQUIRED_STATES = []
-#
-#  def run(self, evidence, result):
-#    """Run the Tomcat analysis worker.
-#
-#    Args:
-#        evidence (Evidence object):  The evidence we will process.
-#        result (TurbiniaTaskResult): The object to place task results into.
-#
-#    Returns:
-#        TurbiniaTaskResult object.
-#    """
-#
-#    # Where to store the resulting output file.
-#    output_file_name = 'tomcat_analysis.txt'
-#    output_file_path = os.path.join(self.output_dir, output_file_name)
-#    # Set the output file as the data source for the output evidence.
-#    output_evidence = ReportText(source_path=output_file_path)
-#
-#    # Read the input file
-#    with open(evidence.local_path, 'r') as input_file:
-#      tomcat_file = input_file.read()
-#
-#    (report, priority, summary) = self.analyse_tomcat_file(tomcat_file)
-#    result.report_priority = priority
-#    result.report_data = report
-#    output_evidence.text_data = report
-#
-#    # Write the report to the output file.
-#    with open(output_file_path, 'w') as fh:
-#      fh.write(output_evidence.text_data.encode('utf-8'))
-#
-#    # Add the resulting evidence to the result object.
-#    result.add_evidence(output_evidence, evidence.config)
-#    result.close(self, success=True, status=summary)
-#    return result
 
 def create_task_report(file_reports: list = []):
     """Creates a task report from a list of file reports.
