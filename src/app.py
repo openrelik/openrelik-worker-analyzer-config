@@ -27,9 +27,10 @@ celery = Celery(
     broker=REDIS_URL,
     backend=REDIS_URL,
     include=[
-        "src.jenkins_task"src/analyzers/tomcat_analyzer.py,
+        "src.jenkins_task",
         "src.jupyter_task",
         "src.redis_task",
-        "src.sshd_task"],
-src/analyzers/tomcat_analyzer.py)
+        "src.sshd_task",
+        "src.tomcat_task"]
+)
 redis_client = redis.Redis.from_url(REDIS_URL)

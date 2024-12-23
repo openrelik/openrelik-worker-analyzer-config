@@ -23,7 +23,7 @@ TASK_NAME_SHORT = "tomcat_config_analyzer"
 COMPATIBLE_INPUTS = {
     "data_types": ["*:artifact:TomcatConfigFile"],
     "mime_types": [],
-    "filenames": ["tomcat.conf"],
+    "filenames": ["tomcat.conf", "web.xml"],
 }
 
 # Task metadata for registration in the core system.
