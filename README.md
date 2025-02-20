@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/hacktobeer/openrelik-worker-config-analyzer/graph/badge.svg?token=OO7IJFIYTD)](https://codecov.io/gh/hacktobeer/openrelik-worker-config-analyzer)
+
 # Openrelik worker for analyzing configuration files.
 
 ## Supported Configuration Analyzers
