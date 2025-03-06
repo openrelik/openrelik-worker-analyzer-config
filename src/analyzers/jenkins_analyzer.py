@@ -16,7 +16,7 @@ import re
 from openrelik_worker_common.reporting import Report, Priority
 
 
-from .utils import bruteforce_password_hashes
+from openrelik_worker_common.password_utils import bruteforce_password_hashes
 
 
 def analyze_config(file_content: str) -> Report:
