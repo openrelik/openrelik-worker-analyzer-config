@@ -104,7 +104,12 @@ def analyze_jenkins(version, credentials, timeout=300):
 
     # "3200" is "bcrypt $2*$, Blowfish (Unix)"
     weak_passwords = bruteforce_password_hashes(
-        credentials_registry.keys(), tmp_dir=None, timeout=timeout, extra_args="-m 3200"
+        credentials_registry.keys(),
+        tmp_dir=None,
+        password_list_file_path="/openrelik/password.lst",
+        password_rules_file_path="/openrelik/openrelik-password-cracking.rules",
+        timeout=timeout,
+        extra_args="-m 3200"
     )
 
     if not version:
