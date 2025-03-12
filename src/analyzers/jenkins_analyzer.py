@@ -16,7 +16,7 @@ import re
 from openrelik_worker_common.reporting import Report, Priority
 
 
-from .utils import bruteforce_password_hashes
+from openrelik_worker_common.password_utils import bruteforce_password_hashes
 
 
 def analyze_config(file_content: str) -> Report:
@@ -86,7 +86,7 @@ def _extract_jenkins_credentials(config):
 
 
 def analyze_jenkins(version, credentials, timeout=300):
-    """Analyses a Jenkins configuration.
+    """Analyzes a Jenkins configuration.
 
     Args:
       version (str): Version of Jenkins.
@@ -104,7 +104,12 @@ def analyze_jenkins(version, credentials, timeout=300):
 
     # "3200" is "bcrypt $2*$, Blowfish (Unix)"
     weak_passwords = bruteforce_password_hashes(
-        credentials_registry.keys(), tmp_dir=None, timeout=timeout, extra_args="-m 3200"
+        credentials_registry.keys(),
+        tmp_dir=None,
+        password_list_file_path="/openrelik/password.lst",
+        password_rules_file_path="/openrelik/openrelik-password-cracking.rules",
+        timeout=timeout,
+        extra_args="-m 3200"
     )
 
     if not version:

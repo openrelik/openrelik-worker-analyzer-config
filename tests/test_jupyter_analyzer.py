@@ -20,7 +20,7 @@ from openrelik_worker_common.reporting import Priority, Report
 class JupyterTests(unittest.TestCase):
     """Test the Jupyter analyzer functions."""
 
-    def test_analyse_config(self):
+    def test_analyze_config(self):
         """Test Jupyter Notebook config."""
         config = (
             """c.NotebookApp.disable_check_xsrf = True\n"""
