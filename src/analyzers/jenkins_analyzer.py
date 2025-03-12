@@ -86,7 +86,7 @@ def _extract_jenkins_credentials(config):
 
 
 def analyze_jenkins(version, credentials, timeout=300):
-    """Analyses a Jenkins configuration.
+    """Analyzes a Jenkins configuration.
 
     Args:
       version (str): Version of Jenkins.
