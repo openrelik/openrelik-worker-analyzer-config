@@ -1,5 +1,5 @@
 # Use the official Docker Hub Ubuntu base image
-FROM --platform=linux/amd64 ubuntu:24.04
+FROM ubuntu:24.04
 
 # Prevent needing to configure debian packages, stopping the setup of
 # the docker container.
