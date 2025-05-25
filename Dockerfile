@@ -1,5 +1,5 @@
 # Use the official Docker Hub Ubuntu base image
-FROM --platform=linux/amd64 ubuntu:24.04
+FROM ubuntu:24.04
 
 # Prevent needing to configure debian packages, stopping the setup of
 # the docker container.
@@ -23,9 +23,9 @@ ENV POETRY_NO_INTERACTION=1 \
 
 # Configure debugging
 ARG OPENRELIK_PYDEBUG
-ENV OPENRELIK_PYDEBUG ${OPENRELIK_PYDEBUG:-0}
+ENV OPENRELIK_PYDEBUG=${OPENRELIK_PYDEBUG:-0}
 ARG OPENRELIK_PYDEBUG_PORT
-ENV OPENRELIK_PYDEBUG_PORT ${OPENRELIK_PYDEBUG_PORT:-5678}
+ENV OPENRELIK_PYDEBUG_PORT=${OPENRELIK_PYDEBUG_PORT:-5678}
 
 # Set working directory
 WORKDIR /openrelik
@@ -37,7 +37,7 @@ RUN curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Pas
 RUN echo ':\nd' > openrelik-password-cracking.rules
 
 # Copy poetry toml and install dependencies
-COPY ./pyproject.toml ./poetry.lock .
+COPY ./pyproject.toml ./poetry.lock ./
 RUN poetry install --no-interaction --no-ansi
 
 # Copy files needed to build
