@@ -6,6 +6,8 @@
 * SSH Daemon - artifact:SshConfigFile
 * Jupyter Notebook - artifact:JupyterConfigFile
 * Jenkins - filename:config.xml
+* Redis - artifact:RedisConfigFile
+* Tomcat - artifact:TomcatConfigFile
 
 ## Installation
 Add the below configuration to the OpenRelik `docker-compose.yml` file.
