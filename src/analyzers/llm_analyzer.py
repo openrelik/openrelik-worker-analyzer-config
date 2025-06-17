@@ -70,7 +70,13 @@ Please set the severity of the security findings, your response must be a single
 CRITICAL
 """
 SUMMARY_PROMPT = """
-Please summarize all security findings in a single statement, keep summary concise and don't describe the summary.
+Please provide a summarry statement for all security findings in the analysis below, keep summary concise but complete and don't describe the summary.
+The name of the artifact being analyzed is {artifact_name}.
+
+**Analysis:**
+```
+{file_analysis_response}
+```
 """
 
 
@@ -147,7 +153,8 @@ def llm_analyze_artifact(
         prompt=REQUEST_PROMPT.format(artifact_name=artifact_name),
         file_content=artifact_content,
     )
-    summary = llm.chat(SUMMARY_PROMPT)
+    summary = llm.chat(SUMMARY_PROMPT.format(
+        artifact_name=artifact_name,file_analysis_response=details))
     priority = llm.chat(PRIORITY_PROMPT)
     if "CRITICAL" in priority.upper():
         priority = Priority.CRITICAL
