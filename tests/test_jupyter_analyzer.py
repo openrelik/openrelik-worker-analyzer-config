@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
+from unittest.mock import patch, mock_open
 
 from src.analyzers.jupyter_analyzer import analyze_config
 from openrelik_worker_common.reporting import Priority, Report
@@ -42,8 +43,10 @@ class JupyterTests(unittest.TestCase):
         config_summary_expected = (
             "Insecure Jupyter Notebook configuration found. Total misconfigs: 4"
         )
+        input_file={"path":"/dummy/path"}
 
-        result = analyze_config(config)
+        with patch('builtins.open', mock_open(read_data=config)):
+            result = analyze_config(input_file, {})
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, config_summary_expected)

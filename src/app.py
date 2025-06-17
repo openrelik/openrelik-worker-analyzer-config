@@ -31,6 +31,7 @@ celery = Celery(
         "src.jupyter_task",
         "src.redis_task",
         "src.sshd_task",
-        "src.tomcat_task"]
+        "src.tomcat_task",
+        "src.llm_task"]
 )
 redis_client = redis.Redis.from_url(REDIS_URL)
