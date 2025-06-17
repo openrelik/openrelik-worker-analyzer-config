@@ -18,7 +18,8 @@ import re
 
 from openrelik_worker_common.reporting import Report, Priority
 
-def analyze_config(file_content: str) -> Report:
+
+def analyze_config(input_file: dict, task_config: dict) -> Report:
     """Analyze a Tomcat file.
 
     - Search for clear text password entries in user configuration file
@@ -30,8 +31,9 @@ def analyze_config(file_content: str) -> Report:
     Returns:
       report (Report): The analysis report.
     """
+    with open(input_file.get("path"), "r", encoding="utf-8") as fh:
+        config = fh.read()
     num_misconfigs = 0
-    config = file_content
 
     # Create a report with two sections.
     report = Report("Tomcat Config Analyzer")
@@ -39,19 +41,17 @@ def analyze_config(file_content: str) -> Report:
     summary_section = report.add_section()
 
     tomcat_deploy_re = re.compile(
-        "(^.*Deploying web application archive.*)", re.MULTILINE)
-    tomcat_manager_activity_re = re.compile(
-        "(^.*POST /manager/html/upload.*)", re.MULTILINE)
-    tomcat_readonly_re = re.compile(
-        "<param-name>readonly</param-name>",
-        re.IGNORECASE
+        "(^.*Deploying web application archive.*)", re.MULTILINE
     )
+    tomcat_manager_activity_re = re.compile(
+        "(^.*POST /manager/html/upload.*)", re.MULTILINE
+    )
+    tomcat_readonly_re = re.compile("<param-name>readonly</param-name>", re.IGNORECASE)
     tomcat_readonly_false_re = re.compile(
         r"<param-name>readonly</param-name>\s*<param-value>false</param-value>",
-        re.IGNORECASE
+        re.IGNORECASE,
     )
     tomcat_user_passwords_re = re.compile("(^.*password.*)", re.MULTILINE)
-
 
     for password_entry in re.findall(tomcat_user_passwords_re, config):
         num_misconfigs += 1
@@ -59,8 +59,7 @@ def analyze_config(file_content: str) -> Report:
 
     for deployment_entry in re.findall(tomcat_deploy_re, config):
         num_misconfigs += 1
-        details_section.add_bullet(
-            "Tomcat App Deployed: " + deployment_entry.strip())
+        details_section.add_bullet("Tomcat App Deployed: " + deployment_entry.strip())
 
     for mgmt_entry in re.findall(tomcat_manager_activity_re, config):
         num_misconfigs += 1
@@ -72,9 +71,7 @@ def analyze_config(file_content: str) -> Report:
             details_section.add_bullet("Tomcat servlet IS NOT read-only")
 
     if num_misconfigs > 0:
-        report.summary = (
-            f"Tomcat analysis found misconfigs. Total: {num_misconfigs}"
-        )
+        report.summary = f"Tomcat analysis found misconfigs. Total: {num_misconfigs}"
         report.priority = Priority.HIGH
         summary_section.add_paragraph(report.summary)
         return report

@@ -14,14 +14,18 @@
 """Tomcat configuration analyzer tests."""
 
 import textwrap
-import unittest
+from unittest import TestCase
+from unittest.mock import patch, mock_open
+
 from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.tomcat_analyzer import analyze_config
 
 
-class TomCatTests(unittest.TestCase):
+class TomCatTests(TestCase):
     """Test the TomCat analyzer functions."""
+
+    input_file = {"path": "/dummy/path"}
 
     def test_tomcat_access_log(self):
         """Test Tomcat access log."""
@@ -44,14 +48,14 @@ class TomCatTests(unittest.TestCase):
         summary = "Tomcat analysis found misconfigs. Total: 1"
 
         # Act
-        result = analyze_config(tomcat_access_log)
+        with patch("builtins.open", mock_open(read_data=tomcat_access_log)):
+            result = analyze_config(self.input_file, {})
 
         # Assert
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, summary)
         self.assertEqual(result.to_markdown().strip(), report)
-
 
     def test_tomcat_app_deploy_log(self):
         """Test Tomcat for app deployment logs."""
@@ -73,14 +77,14 @@ class TomCatTests(unittest.TestCase):
         summary = "Tomcat analysis found misconfigs. Total: 2"
 
         # Act
-        result = analyze_config(tomcat_app_deploy_log)
+        with patch("builtins.open", mock_open(read_data=tomcat_app_deploy_log)):
+            result = analyze_config(self.input_file, {})
 
         # Assert
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, summary)
         self.assertEqual(result.to_markdown().strip(), report)
-
 
     def test_tomcat_password_file(self):
         """Test Tomcat password file."""
@@ -106,14 +110,14 @@ class TomCatTests(unittest.TestCase):
         summary = "Tomcat analysis found misconfigs. Total: 2"
 
         # Act
-        result = analyze_config(tomcat_password_file)
+        with patch("builtins.open", mock_open(read_data=tomcat_password_file)):
+            result = analyze_config(self.input_file, {})
 
         # Assert
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, summary)
         self.assertEqual(result.to_markdown().strip(), report)
-
 
     def test_tomcat_servlet_readonly(self):
         """Test Tomcat servlet for read-only."""
@@ -140,7 +144,8 @@ class TomCatTests(unittest.TestCase):
         summary = "Tomcat analysis found misconfigs. Total: 1"
 
         # Act
-        result = analyze_config(tomcat_web_xml_file)
+        with patch("builtins.open", mock_open(read_data=tomcat_web_xml_file)):
+            result = analyze_config(self.input_file, {})
 
         # Assert
         self.assertIsInstance(result, Report)
