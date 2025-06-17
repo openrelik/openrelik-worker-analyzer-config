@@ -16,7 +16,7 @@ import re
 from openrelik_worker_common.reporting import Report, Priority
 
 
-def analyze_config(file_content: str) -> Report:
+def analyze_config(input_file: dict, task_config: dict) -> Report:
     """Analyzes a Redis configuration.
 
     Args:
@@ -25,8 +25,10 @@ def analyze_config(file_content: str) -> Report:
     Returns:
         report (Report): The analysis report.
     """
+    # Read the input file to be analyzed.
+    with open(input_file.get("path"), "r", encoding="utf-8") as fh:
+        config = fh.read()
     num_misconfigs = 0
-    config = file_content
 
     # Create a report with two sections.
     report = Report("Redis Config Analyzer")
@@ -34,34 +36,33 @@ def analyze_config(file_content: str) -> Report:
     details_section = report.add_section()
 
     bind_everywhere_re = re.compile(
-        r'^\s*bind[\s"]*0\.0\.0\.0', re.IGNORECASE | re.MULTILINE)
+        r'^\s*bind[\s"]*0\.0\.0\.0', re.IGNORECASE | re.MULTILINE
+    )
     default_port_re = re.compile(r"port\s+6379\b", re.IGNORECASE)
     missing_logs_re = re.compile(r'^logfile\s+"[^"]+"$', re.MULTILINE)
 
     if config is None or config == "":
-      report.summary = "No Redis config found"
-      report.priority = Priority.LOW
-      pass  
-    else: 
-      if re.search(bind_everywhere_re, config):
-        num_misconfigs += 1
-        details_section.add_bullet("Redis listening on every IP")
+        report.summary = "No Redis config found"
+        report.priority = Priority.LOW
+        pass
+    else:
+        if re.search(bind_everywhere_re, config):
+            num_misconfigs += 1
+            details_section.add_bullet("Redis listening on every IP")
 
-      if re.search(default_port_re, config):
-        num_misconfigs += 1
-        details_section.add_bullet("Redis configured with default port (6379)")
+        if re.search(default_port_re, config):
+            num_misconfigs += 1
+            details_section.add_bullet("Redis configured with default port (6379)")
 
-      if not re.search(missing_logs_re, config):
-        num_misconfigs += 1
-        details_section.add_bullet("Log destination not configured")
+        if not re.search(missing_logs_re, config):
+            num_misconfigs += 1
+            details_section.add_bullet("Log destination not configured")
 
-      if num_misconfigs > 0:
-          report.summary = (
-              f"Insecure Redis configuration found. Total misconfigs: {num_misconfigs}"
-          )
-          report.priority = Priority.HIGH
-          summary_section.add_paragraph(report.summary)
-          return report
+        if num_misconfigs > 0:
+            report.summary = f"Insecure Redis configuration found. Total misconfigs: {num_misconfigs}"
+            report.priority = Priority.HIGH
+            summary_section.add_paragraph(report.summary)
+            return report
 
     summary_section.add_paragraph(report.summary)
     return report

@@ -83,7 +83,7 @@ def task_factory(
             )
 
             # Use the provided analysis function.
-            analysis_report = analysis_function(input_files, task_config)
+            analysis_report = analysis_function(input_file, task_config)
             file_report = serialize_file_report(
                 input_file, report_file, analysis_report
             )
