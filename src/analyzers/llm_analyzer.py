@@ -143,7 +143,7 @@ def llm_analyze_artifact(
         system_instructions=CONTEXT_PROMPT,
         max_input_tokens=max_input_tokens,
     )
-    details = llm.chat(
+    details = llm.generate_file_analysis(
         prompt=REQUEST_PROMPT.format(artifact_name=artifact_name),
         file_content=artifact_content,
     )
