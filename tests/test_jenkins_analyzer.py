@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 
 from src.analyzers.jenkins_analyzer import (
     analyze_config,
@@ -70,8 +70,10 @@ class JenkinsTest(unittest.TestCase):
             """    * User "Ramses de Beer" with password \"test\""""
         )
         jenkins_config_summary_expected = "Jenkins analysis found potential issues"
+        input_file={"path":"/dummy/path"}
 
-        result = analyze_config(config)
+        with patch('builtins.open', mock_open(read_data=config)):
+            result = analyze_config(input_file, {})
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.CRITICAL)
         self.assertEqual(result.summary, jenkins_config_summary_expected)
