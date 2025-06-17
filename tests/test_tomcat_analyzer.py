@@ -14,7 +14,7 @@
 """Tomcat configuration analyzer tests."""
 
 import textwrap
-from unittest import TestCase
+import unittest
 from unittest.mock import patch, mock_open
 
 from openrelik_worker_common.reporting import Priority, Report
@@ -22,7 +22,7 @@ from openrelik_worker_common.reporting import Priority, Report
 from src.analyzers.tomcat_analyzer import analyze_config
 
 
-class TomCatTests(TestCase):
+class TomCatTests(unittest.TestCase):
     """Test the TomCat analyzer functions."""
 
     input_file = {"path": "/dummy/path"}
