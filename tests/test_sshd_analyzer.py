@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from openrelik_worker_common.reporting import Priority, Report
+from unittest.mock import patch, mock_open
 
+from openrelik_worker_common.reporting import Priority, Report
 from src.analyzers.sshd_analyzer import analyze_config
 
 
 class SshdTests(unittest.TestCase):
     """Test the sshd analyzer functions."""
+    input_file={"path":"/dummy/path"}
 
     def test_sshdconfig_empty(self):
         """Test empty sshd config."""
-        result = analyze_config("")
+        with patch('builtins.open', mock_open(read_data="")):
+            result = analyze_config(self.input_file, {})
         report = (
             """# SSHD Config Analyzer\n"""
             """\n\n"""
@@ -51,7 +54,9 @@ class SshdTests(unittest.TestCase):
         )
         summary_expected = "Insecure SSHD configuration found. Total misconfigs: 3"
 
-        result = analyze_config(sshd_config_weak)
+        with patch('builtins.open', mock_open(read_data=sshd_config_weak)):
+            result = analyze_config(self.input_file, {})
+        
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.HIGH)
         self.assertEqual(result.summary, summary_expected)
