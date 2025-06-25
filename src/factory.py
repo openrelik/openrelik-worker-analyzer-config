@@ -84,15 +84,16 @@ def task_factory(
 
             # Use the provided analysis function.
             analysis_report = analysis_function(input_file, task_config)
-            file_report = serialize_file_report(
-                input_file, report_file, analysis_report
-            )
+            if analysis_report:
+                file_report = serialize_file_report(
+                    input_file, report_file, analysis_report
+                )
 
-            with open(report_file.path, "w", encoding="utf-8") as fh:
-                fh.write(analysis_report.to_markdown())
+                with open(report_file.path, "w", encoding="utf-8") as fh:
+                    fh.write(analysis_report.to_markdown())
 
-            file_reports.append(file_report)
-            output_files.append(report_file.to_dict())
+                file_reports.append(file_report)
+                output_files.append(report_file.to_dict())
 
         if task_report_function:
             task_report = task_report_function(file_reports)
