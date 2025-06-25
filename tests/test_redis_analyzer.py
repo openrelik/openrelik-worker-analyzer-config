@@ -11,15 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import unittest
 from unittest.mock import patch, mock_open
+from unittest import TestCase
 
 from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.redis_analyzer import analyze_config
 
 
-class RedisTests(unittest.TestCase):
+class RedisTests(TestCase):
     """Test the Redis analyzer functions."""
 
     input_file = {"path": "/dummy/path"}
