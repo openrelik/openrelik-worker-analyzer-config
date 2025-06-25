@@ -17,7 +17,6 @@ import textwrap
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
-
 from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.tomcat_analyzer import analyze_config
