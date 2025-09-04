@@ -98,8 +98,15 @@ def analyze_text_content(
         input_file.get("path"),
     )
     # Read the input file to be analyzed.
-    with open(input_file.get("path"), "r", encoding="utf-8") as fh:
+    file_content=""
+    try:
+      with open(input_file.get("path"), "r", encoding="utf-8") as fh:
         file_content = fh.read()
+    except UnicodeDecodeError:
+      logger.error(
+          f"UnicodeDecodeError: Artifact {input_file.get("path")} not UTF-8 encoded"
+      )
+      return None
 
     priority, summary, details = llm_analyze_artifact(
         file_content,
