@@ -98,9 +98,6 @@ def task_factory(
         if task_report_function:
             task_report = task_report_function(file_reports)
 
-        if not output_files:
-            raise RuntimeError(f"{task_name_short} didn't create any output files")
-
         return create_task_result(
             output_files=output_files,
             workflow_id=workflow_id,
