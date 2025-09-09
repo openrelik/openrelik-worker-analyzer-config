@@ -12,6 +12,7 @@ celery = { extras = ["redis"], version = "^5.4.0" }
 openrelik-worker-common = "^0.16.0"
 debugpy = "^1.8.7"
 openrelik-ai-common = "^0.4.0"
+openrelik-common = "^0.6.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
