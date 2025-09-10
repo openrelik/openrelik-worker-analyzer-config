@@ -1307,28 +1307,24 @@ ratelimit = ">=2.2.1,<3.0.0"
 
 [[package]]
 name = "openrelik-common"
-version = "0.6.0"
+version = "0.7.0"
 description = "Common utilities for OpenRelik"
 optional = false
-python-versions = "^3.11"
+python-versions = "<4.0,>=3.11"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "openrelik_common-0.7.0-py3-none-any.whl", hash = "sha256:de5af600af0af2ce72492a2282e66944bf85b462460a751793f948deeeaa24ac"},
+    {file = "openrelik_common-0.7.0.tar.gz", hash = "sha256:3552baff045f454c2b00f853cfa0283d2b8bec2768a2933fef1c42eea7bacef1"},
+]
 
 [package.dependencies]
-billiard = "^4.2.1"
-celery = "^5.5.3"
-fastapi = "^0.115.11"
+billiard = ">=4.2.1,<5.0.0"
+celery = ">=5.5.3,<6.0.0"
+fastapi = ">=0.115.11,<0.116.0"
 opentelemetry-exporter-otlp = "1.32.1"
-opentelemetry-instrumentation-celery = "^0.53b1"
-opentelemetry-instrumentation-fastapi = "^0.53b1"
-structlog = "^25.4.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/rgayon/openrelik-common"
-reference = "addevents"
-resolved_reference = "8fe42607905291f95259da7890b394e6ca030bad"
+opentelemetry-instrumentation-celery = ">=0.53b1,<0.54"
+opentelemetry-instrumentation-fastapi = ">=0.53b1,<0.54"
+structlog = ">=25.4.0,<26.0.0"
 
 [[package]]
 name = "openrelik-worker-common"
@@ -2394,4 +2390,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "c39d540c308ba2429ed43476446082af3920a707179320e13adcf98cc2f02f68"
+content-hash = "c07790042c9b94e07d9591531bb7b9289f928e3f61bb99a84eed974d91911926"
