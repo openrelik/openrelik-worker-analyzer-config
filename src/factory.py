@@ -70,6 +70,7 @@ def task_factory(
 
         telemetry.add_attribute_to_current_span("input_files", input_files)
         telemetry.add_attribute_to_current_span("task_config", task_config)
+        telemetry.add_attribute_to_current_span("workflow_id", workflow_id)
 
         telemetry.add_event_to_current_span(
                 f"Starting {task_name_short} with {len(input_files)} input files")
