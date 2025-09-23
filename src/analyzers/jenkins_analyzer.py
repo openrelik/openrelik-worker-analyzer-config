@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,7 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common.reporting import Report, Priority
-
+from openrelik_worker_common.reporting import Priority, Report
 
 from .utils import bruteforce_password_hashes
 
@@ -99,8 +98,7 @@ def analyze_jenkins(version, credentials, timeout=300):
     Returns:
       report (Report): The analysis report.
     """
-    report = Report("Jenkins Config Analyzer")
-    summary_section = report.add_section()
+    report = Report()
     details_section = report.add_section()
 
     credentials_registry = {hash: username for username, hash in credentials}
@@ -117,7 +115,6 @@ def analyze_jenkins(version, credentials, timeout=300):
     if weak_passwords:
         report.priority = Priority.CRITICAL
         report.summary = "Jenkins analysis found potential issues"
-        summary_section.add_paragraph(report.summary)
 
         line = f"{len(weak_passwords):n} weak password(s) found:"
         details_section.add_bullet(line)
@@ -132,10 +129,8 @@ def analyze_jenkins(version, credentials, timeout=300):
             f"Jenkins version {version} found with {len(credentials_registry)} "
             "credentials, but no issues detected"
         )
-        summary_section.add_paragraph(report.summary)
     else:
         report.priority = Priority.LOW
         report.summary = "No Jenkins instance found"
-        summary_section.add_paragraph(report.summary)
 
     return report
