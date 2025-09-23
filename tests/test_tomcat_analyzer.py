@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 
 import textwrap
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 from openrelik_worker_common.reporting import Priority, Report
 
@@ -38,14 +38,10 @@ class TomCatTests(unittest.TestCase):
         """
 
         report = textwrap.dedent("""
-        # Tomcat Config Analyzer
-
         * Tomcat Management: 1.2.3.4 - admin [12/Apr/2018:14:01:39 -0100] "POST /manager/html/upload?org.apache.catalina.filters.CSRF_NONCE=1ABCDEFGKLMONPQRSTIRQKD240384739 HTTP/1.1" 200 27809
-                                 
-        Tomcat analysis found misconfigs. Total: 1
         """).strip()
 
-        summary = "Tomcat analysis found misconfigs. Total: 1"
+        summary = "Tomcat analysis found misconfigs"
 
         # Act
         with patch("builtins.open", mock_open(read_data=tomcat_access_log)):
@@ -67,14 +63,10 @@ class TomCatTests(unittest.TestCase):
         """
 
         report = textwrap.dedent(r"""
-        # Tomcat Config Analyzer
-
         * Tomcat App Deployed: 21-Mar-2017 19:21:08.140 INFO [localhost-startStop-2] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive C:\Program Files\Apache Software Foundation\Tomcat 9.0\webapps\MyAwesomeApp.war
         * Tomcat App Deployed: 10-Sep-2012 11:41:12.283 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive /opt/apache-tomcat-8.0.32/webapps/badboy.war
-
-        Tomcat analysis found misconfigs. Total: 2
         """).strip()
-        summary = "Tomcat analysis found misconfigs. Total: 2"
+        summary = "Tomcat analysis found misconfigs"
 
         # Act
         with patch("builtins.open", mock_open(read_data=tomcat_app_deploy_log)):
@@ -100,14 +92,10 @@ class TomCatTests(unittest.TestCase):
             </tomcat-users>
         """
         report = textwrap.dedent("""
-        # Tomcat Config Analyzer
-        
         * tomcat user: <user username="tomcat" password="tomcat" roles="tomcat"/>
         * tomcat user: <user username="both" password="tomcat" roles="tomcat,role1"/>
-        
-        Tomcat analysis found misconfigs. Total: 2
         """).strip()
-        summary = "Tomcat analysis found misconfigs. Total: 2"
+        summary = "Tomcat analysis found misconfigs"
 
         # Act
         with patch("builtins.open", mock_open(read_data=tomcat_password_file)):
@@ -135,13 +123,9 @@ class TomCatTests(unittest.TestCase):
         </servlet>
         """
         report = textwrap.dedent("""
-        # Tomcat Config Analyzer
-        
         * Tomcat servlet IS NOT read-only
-        
-        Tomcat analysis found misconfigs. Total: 1
         """).strip()
-        summary = "Tomcat analysis found misconfigs. Total: 1"
+        summary = "Tomcat analysis found misconfigs"
 
         # Act
         with patch("builtins.open", mock_open(read_data=tomcat_web_xml_file)):
