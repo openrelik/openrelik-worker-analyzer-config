@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
+
+from openrelik_worker_common.reporting import Priority, Report
 
 from src.analyzers.jenkins_analyzer import (
-    analyze_config,
     _extract_jenkins_credentials,
     _extract_jenkins_version,
+    analyze_config,
 )
-
-
-from openrelik_worker_common.reporting import Report, Priority
 
 
 class JenkinsTest(unittest.TestCase):
@@ -61,18 +60,15 @@ class JenkinsTest(unittest.TestCase):
             """<passwordHash>#jbcrypt:$2a$10$razd3L1aXndFfBNHO95aj.IVrFydsxkcQCcLmujmFQzll3hcUrY7S</passwordHash>"""
         )
         jenkins_config_report_expected = (
-            """# Jenkins Config Analyzer\n"""
-            """\n\n"""
-            """Jenkins analysis found potential issues\n"""
             """\n"""
             """* Jenkins version: 1.29.2\n"""
             """* 1 weak password(s) found:\n"""
             """    * User "Ramses de Beer" with password \"test\""""
         )
         jenkins_config_summary_expected = "Jenkins analysis found potential issues"
-        input_file={"path":"/dummy/path"}
+        input_file = {"path": "/dummy/path"}
 
-        with patch('builtins.open', mock_open(read_data=config)):
+        with patch("builtins.open", mock_open(read_data=config)):
             result = analyze_config(input_file, {})
         self.assertIsInstance(result, Report)
         self.assertEqual(result.priority, Priority.CRITICAL)

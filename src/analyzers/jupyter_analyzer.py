@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openrelik_worker_common.reporting import Report, Priority
+from openrelik_worker_common.reporting import Priority, Report
 
 
 def analyze_config(input_file: dict, task_config: dict) -> Report:
@@ -30,8 +30,7 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
         config = fh.read()
     num_misconfigs = 0
 
-    report = Report("Jupyter Config Analyzer")
-    summary_section = report.add_section()
+    report = Report()
     details_section = report.add_section()
 
     for line in config.split("\n"):
@@ -59,19 +58,15 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
                         )
                         num_misconfigs += 1
         if all(x in line for x in ["allow_remote_access", "True"]):
-            details_section.add_bullet(
-                "Remote access is enabled on this Jupyter Notebook."
-            )
+            details_section.add_bullet("Remote access is enabled on this Jupyter Notebook.")
             num_misconfigs += 1
             continue
 
     if num_misconfigs > 0:
         report.priority = Priority.HIGH
-        report.summary = f"Insecure Jupyter Notebook configuration found. Total misconfigs: {num_misconfigs}"
-        summary_section.add_paragraph(report.summary)
+        report.summary = "Insecure Jupyter Notebook configuration found"
         return report
 
     report.priority = Priority.LOW
     report.summary = "No issues found in Jupyter Notebook configuration."
-    summary_section.add_paragraph(report.summary)
     return report
