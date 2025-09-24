@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common.reporting import Report, Priority
+from openrelik_worker_common.reporting import Priority, Report
 
 
 def analyze_config(input_file: dict, task_config: dict) -> Report:
@@ -31,9 +31,7 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
         config = fh.read()
     num_misconfigs = 0
 
-    # Create a report with two sections.
-    report = Report("SSHD Config Analyzer")
-    summary_section = report.add_section()
+    report = Report()
     details_section = report.add_section()
 
     permit_root_login_re = re.compile(
@@ -60,16 +58,12 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
         num_misconfigs += 1
 
     if num_misconfigs > 0:
-        report.summary = (
-            f"Insecure SSHD configuration found. Total misconfigs: {num_misconfigs}"
-        )
+        report.summary = "Insecure SSHD configuration found"
         report.priority = Priority.HIGH
-        summary_section.add_paragraph(report.summary)
         return report
 
     report.summary = "No issues found in SSH configuration"
     report.priority = Priority.LOW
-    summary_section.add_paragraph(report.summary)
     return report
 
 

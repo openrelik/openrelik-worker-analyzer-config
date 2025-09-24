@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2024 Google Inc.
+# Copyright 2024-2025 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +15,7 @@
 
 import re
 
-from openrelik_worker_common.reporting import Report, Priority
+from openrelik_worker_common.reporting import Priority, Report
 
 
 def analyze_config(input_file: dict, task_config: dict) -> Report:
@@ -35,17 +34,11 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
         config = fh.read()
     num_misconfigs = 0
 
-    # Create a report with two sections.
-    report = Report("Tomcat Config Analyzer")
+    report = Report()
     details_section = report.add_section()
-    summary_section = report.add_section()
 
-    tomcat_deploy_re = re.compile(
-        "(^.*Deploying web application archive.*)", re.MULTILINE
-    )
-    tomcat_manager_activity_re = re.compile(
-        "(^.*POST /manager/html/upload.*)", re.MULTILINE
-    )
+    tomcat_deploy_re = re.compile("(^.*Deploying web application archive.*)", re.MULTILINE)
+    tomcat_manager_activity_re = re.compile("(^.*POST /manager/html/upload.*)", re.MULTILINE)
     tomcat_readonly_re = re.compile("<param-name>readonly</param-name>", re.IGNORECASE)
     tomcat_readonly_false_re = re.compile(
         r"<param-name>readonly</param-name>\s*<param-value>false</param-value>",
@@ -71,12 +64,10 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
             details_section.add_bullet("Tomcat servlet IS NOT read-only")
 
     if num_misconfigs > 0:
-        report.summary = f"Tomcat analysis found misconfigs. Total: {num_misconfigs}"
+        report.summary = "Tomcat analysis found misconfigs"
         report.priority = Priority.HIGH
-        summary_section.add_paragraph(report.summary)
         return report
 
     report.summary = "No issues found in Tomcat configuration"
     report.priority = Priority.LOW
-    summary_section.add_paragraph(report.summary)
     return report

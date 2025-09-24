@@ -17,7 +17,10 @@ import os
 import redis
 from celery.app import Celery
 
+from openrelik_common import telemetry
 from openrelik_worker_common.debug_utils import start_debugger
+
+telemetry.setup_telemetry('openrelik-worker-analyzer-config')
 
 if os.getenv("OPENRELIK_PYDEBUG") == "1":
     start_debugger()
@@ -32,6 +35,11 @@ celery = Celery(
         "src.redis_task",
         "src.sshd_task",
         "src.tomcat_task",
-        "src.llm_task"]
+        "src.llm_task"],
+    worker_hijack_root_logger=False, # Disable Celery hijacking configured Python loggers.
+    worker_log_format="%(message)s",
+    worker_task_log_format="%(message)s",
 )
 redis_client = redis.Redis.from_url(REDIS_URL)
+
+telemetry.instrument_celery_app(celery)

@@ -19,6 +19,7 @@ from typing import Callable
 from openrelik_worker_common.file_utils import create_output_file
 from openrelik_worker_common.task_utils import create_task_result, get_input_files
 from openrelik_worker_common.reporting import serialize_file_report
+from openrelik_common import telemetry
 
 
 from .app import celery
@@ -67,6 +68,12 @@ def task_factory(
         file_reports = []
         task_report = None
 
+        telemetry.add_attribute_to_current_span("input_files", input_files)
+        telemetry.add_attribute_to_current_span("task_config", task_config)
+        telemetry.add_attribute_to_current_span("workflow_id", workflow_id)
+
+        telemetry.add_event_to_current_span(
+                f"Starting {task_name_short} with {len(input_files)} input files")
         for input_file in input_files:
             report_file = create_output_file(
                 output_path,
@@ -94,9 +101,14 @@ def task_factory(
 
                 file_reports.append(file_report)
                 output_files.append(report_file.to_dict())
+            telemetry.add_event_to_current_span(
+                    f"{task_name_short} finished analyzing {input_file.get('path')}")
 
         if task_report_function:
             task_report = task_report_function(file_reports)
+
+        telemetry.add_event_to_current_span(
+                f"Completed {task_name_short} with {len(input_files)} input files")
 
         return create_task_result(
             output_files=output_files,

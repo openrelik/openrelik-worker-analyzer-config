@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 
-from openrelik_worker_common.reporting import Report, Priority
+from openrelik_worker_common.reporting import Priority, Report
 
 
 def analyze_config(input_file: dict, task_config: dict) -> Report:
@@ -30,14 +30,10 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
         config = fh.read()
     num_misconfigs = 0
 
-    # Create a report with two sections.
-    report = Report("Redis Config Analyzer")
-    summary_section = report.add_section()
+    report = Report()
     details_section = report.add_section()
 
-    bind_everywhere_re = re.compile(
-        r'^\s*bind[\s"]*0\.0\.0\.0', re.IGNORECASE | re.MULTILINE
-    )
+    bind_everywhere_re = re.compile(r'^\s*bind[\s"]*0\.0\.0\.0', re.IGNORECASE | re.MULTILINE)
     default_port_re = re.compile(r"port\s+6379\b", re.IGNORECASE)
     missing_logs_re = re.compile(r'^logfile\s+"[^"]+"$', re.MULTILINE)
 
@@ -59,12 +55,9 @@ def analyze_config(input_file: dict, task_config: dict) -> Report:
             details_section.add_bullet("Log destination not configured")
 
         if num_misconfigs > 0:
-            report.summary = f"Insecure Redis configuration found. Total misconfigs: {num_misconfigs}"
+            report.summary = "Insecure Redis configuration found"
             report.priority = Priority.HIGH
-            summary_section.add_paragraph(report.summary)
-            return report
 
-    summary_section.add_paragraph(report.summary)
     return report
 
 
