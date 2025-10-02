@@ -109,6 +109,7 @@ def task_factory(
 
         telemetry.add_event_to_current_span(
                 f"Completed {task_name_short} with {len(input_files)} input files")
+
         return create_task_result(
             output_files=output_files,
             workflow_id=workflow_id,

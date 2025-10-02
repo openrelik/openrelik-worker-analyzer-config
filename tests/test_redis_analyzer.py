@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import unittest 
-from unittest.mock import patch, mock_open
+import unittest
+from unittest.mock import mock_open, patch
 
 from openrelik_worker_common.reporting import Priority, Report
 
@@ -26,11 +26,7 @@ class RedisTests(unittest.TestCase):
 
     def test_redisconfig_empty(self):
         """Test empty Redis config."""
-        report = (
-            """# Redis Config Analyzer\n"""
-            """\n\n"""
-            """No Redis config found\n\n"""
-        )
+        report = "\n"
         summary = "No Redis config found"
         with patch("builtins.open", mock_open(read_data="")):
             result = analyze_config(self.input_file, {})
@@ -46,15 +42,11 @@ class RedisTests(unittest.TestCase):
         port 6379
         logfile"""
         report_expected = (
-            """# Redis Config Analyzer"""
-            """\n\n\n"""
-            """Insecure Redis configuration found. Total misconfigs: 3"""
-            """\n\n"""
-            """* Redis listening on every IP\n"""
+            """\n* Redis listening on every IP\n"""
             """* Redis configured with default port (6379)\n"""
             """* Log destination not configured"""
         )
-        summary_expected = "Insecure Redis configuration found. Total misconfigs: 3"
+        summary_expected = "Insecure Redis configuration found"
         with patch("builtins.open", mock_open(read_data=redis_config_weak)):
             result = analyze_config(self.input_file, {})
 

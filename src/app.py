@@ -35,7 +35,10 @@ celery = Celery(
         "src.redis_task",
         "src.sshd_task",
         "src.tomcat_task",
-        "src.llm_task"]
+        "src.llm_task"],
+    worker_hijack_root_logger=False, # Disable Celery hijacking configured Python loggers.
+    worker_log_format="%(message)s",
+    worker_task_log_format="%(message)s",
 )
 redis_client = redis.Redis.from_url(REDIS_URL)
 
