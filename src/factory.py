@@ -13,14 +13,12 @@
 # limitations under the License.
 
 import logging
-
 from typing import Callable
 
-from openrelik_worker_common.file_utils import create_output_file
-from openrelik_worker_common.task_utils import create_task_result, get_input_files
-from openrelik_worker_common.reporting import serialize_file_report
 from openrelik_common import telemetry
-
+from openrelik_worker_common.file_utils import create_output_file
+from openrelik_worker_common.reporting import serialize_file_report
+from openrelik_worker_common.task_utils import create_task_result, get_input_files
 
 from .app import celery
 
@@ -61,9 +59,7 @@ def task_factory(
     ) -> str:
         """Run the configuration analyzer on input files."""
 
-        input_files = get_input_files(
-            pipe_result, input_files or [], filter=compatible_inputs
-        )
+        input_files = get_input_files(pipe_result, input_files or [], filter=compatible_inputs)
         output_files = []
         file_reports = []
         task_report = None
@@ -73,7 +69,8 @@ def task_factory(
         telemetry.add_attribute_to_current_span("workflow_id", workflow_id)
 
         telemetry.add_event_to_current_span(
-                f"Starting {task_name_short} with {len(input_files)} input files")
+            f"Starting {task_name_short} with {len(input_files)} input files"
+        )
         for input_file in input_files:
             report_file = create_output_file(
                 output_path,
@@ -89,12 +86,13 @@ def task_factory(
                 input_file.get("path"),
             )
 
+            # Indicate task progress start.
+            self.send_event("task-progress")
+
             # Use the provided analysis function.
             analysis_report = analysis_function(input_file, task_config)
             if analysis_report:
-                file_report = serialize_file_report(
-                    input_file, report_file, analysis_report
-                )
+                file_report = serialize_file_report(input_file, report_file, analysis_report)
 
                 with open(report_file.path, "w", encoding="utf-8") as fh:
                     fh.write(analysis_report.to_markdown())
@@ -102,13 +100,15 @@ def task_factory(
                 file_reports.append(file_report)
                 output_files.append(report_file.to_dict())
             telemetry.add_event_to_current_span(
-                    f"{task_name_short} finished analyzing {input_file.get('path')}")
+                f"{task_name_short} finished analyzing {input_file.get('path')}"
+            )
 
         if task_report_function:
             task_report = task_report_function(file_reports)
 
         telemetry.add_event_to_current_span(
-                f"Completed {task_name_short} with {len(input_files)} input files")
+            f"Completed {task_name_short} with {len(input_files)} input files"
+        )
 
         return create_task_result(
             output_files=output_files,
