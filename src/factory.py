@@ -19,7 +19,7 @@ from celery.utils.log import get_task_logger
 from openrelik_common import telemetry
 from openrelik_common.logging import Logger
 from openrelik_worker_common.file_utils import create_output_file
-from openrelik_worker_common.reporting import serialize_file_report
+from openrelik_worker_common.reporting import serialize_file_report, Report
 from openrelik_worker_common.task_utils import create_task_result, get_input_files
 
 from .app import celery
@@ -77,7 +77,7 @@ def task_factory(
         )
         output_files = []
         file_reports = []
-        task_report = None
+        task_report = Report()
 
         telemetry.add_attribute_to_current_span("input_files", input_files)
         telemetry.add_attribute_to_current_span("task_config", task_config)
@@ -111,17 +111,21 @@ def task_factory(
                     input_file, report_file, analysis_report
                 )
 
+                markdown_report = ""
                 with open(report_file.path, "w", encoding="utf-8") as fh:
-                    fh.write(analysis_report.to_markdown())
+                    markdown_report = analysis_report.to_markdown()
+                    fh.write(markdown_report)
+                    
+                task_report_section = task_report.add_section()
+                task_report_section.add_paragraph(f"Report for {input_file.get('display_name')}")
+                task_report_section.add_paragraph(markdown_report)
 
                 file_reports.append(file_report)
                 output_files.append(report_file.to_dict())
+
             telemetry.add_event_to_current_span(
                 f"{task_name_short} finished analyzing {input_file.get('path')}"
             )
-
-        if task_report_function:
-            task_report = task_report_function(file_reports)
 
         telemetry.add_event_to_current_span(
             f"Completed {task_name_short} with {len(input_files)} input files"
@@ -133,7 +137,7 @@ def task_factory(
             output_files=output_files,
             workflow_id=workflow_id,
             file_reports=file_reports,
-            task_report=task_report,
+            task_report=task_report.to_dict(),
         )
 
     return config_analyzer
