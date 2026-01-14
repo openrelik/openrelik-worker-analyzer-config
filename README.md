@@ -26,3 +26,9 @@ openrelik-worker-analyzer-config:
     # ports:
       # - 5678:5678 # For debugging purposes.
 ```
+
+## Test
+```
+uv sync --group test
+uv run pytest -s --cov=.
+```
